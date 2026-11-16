@@ -1,0 +1,13 @@
+{
+  "name": "kioku-east-archive",
+  "version": "0.5.0",
+  "private": true,
+  "type": "module",
+  "description": "KIOKU English-language anime figure reference library and collector tools preview",
+  "scripts": {
+    "test": "node scripts/check.mjs",
+    "build": "npm run test && node scripts/build.mjs",
+    "preview": "python3 scripts/make_standalone_v5.py",
+    "qa:browser": "python3 tests/v5_browser_qa.py"
+  }
+}
