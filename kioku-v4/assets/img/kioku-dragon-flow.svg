@@ -2,7 +2,7 @@
 <!-- Original KIOKU atmospheric dragon. Decorative, not a product image or cultural emblem. -->
 <style>
 .dragon-flight{transform-origin:50% 50%;animation:kioku-glide 6.6s ease-in-out infinite}
-.dragon-frame{fill:#6A769A;stroke:#34405F;stroke-width:.9;stroke-linejoin:round;opacity:0}
+.dragon-frame{fill:#6A769A;fill-opacity:.10;stroke:#34405F;stroke-opacity:.76;stroke-width:1.7;stroke-linejoin:round;opacity:0}
 .frame-a{opacity:.92;animation:kioku-phase-a 6.6s ease-in-out infinite}
 .frame-b{animation:kioku-phase-b 6.6s ease-in-out infinite}
 .frame-c{animation:kioku-phase-c 6.6s ease-in-out infinite}
