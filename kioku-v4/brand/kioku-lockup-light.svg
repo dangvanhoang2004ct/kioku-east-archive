@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 196 48" role="img" aria-labelledby="title">
+  <title id="title">KIOKU</title>
+  <path fill="#FFFFFF" fill-rule="evenodd" d="M9 6h8v14L29 6h10L24 23l12 11h6l-4 6H5v-6h4Zm8 21v7h9l-7-7Z"/>
+  <path fill="#FFFFFF" fill-rule="evenodd" transform="translate(50 6)" d="M3 3h7v12L21 3h9L18 16l12 15h-9l-8-10-3 3v7H3Zm32 0h7v28h-7Zm27-.5c8.6 0 13.5 5 13.5 14.5S70.6 31.5 62 31.5 48.5 26.5 48.5 17 53.4 2.5 62 2.5Zm0 6.3c-4.4 0-6.5 2.8-6.5 8.2s2.1 8.2 6.5 8.2 6.5-2.8 6.5-8.2-2.1-8.2-6.5-8.2ZM81 3h7v12L99 3h9L96 16l12 15h-9l-8-10-3 3v7h-7Zm32 0h7v16.7c0 3.6 1.8 5.5 5.4 5.5 3.7 0 5.6-1.9 5.6-5.5V3h7v17c0 7.4-4.4 11.5-12.6 11.5-8.1 0-12.4-4.1-12.4-11.5Z"/>
+</svg>
