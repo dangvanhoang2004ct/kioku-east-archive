@@ -9,7 +9,7 @@ if(form){
   const candidates=byMaker.sort((a,b)=>priority.indexOf(a.slug)-priority.indexOf(b.slug)).slice(0,3);
   const mk=v.maker==='any'?'both maker families':v.maker;
   out.querySelector('[data-finder-message]').textContent=`Based on your interest in ${mk} and the way you like to display a collectible, these maker-line references may be useful starting points. This is an editorial suggestion, not a product match or stock check.`;
-  grid.innerHTML=candidates.map(r=>`<a class="finder-pick" href="./work.html?ref=${encodeURIComponent(r.slug)}"><img alt="Original illustration, not product photography" src="${r.image}" width="720" height="900" loading="lazy"><span>${safe(r.maker)}</span><strong>${safe(r.line)}</strong><small>Explore the reference</small></a>`).join('');
+  grid.innerHTML=candidates.map(r=>`<a class="finder-pick" href="./work.html?ref=${encodeURIComponent(r.slug)}"><span>${safe(r.maker)} · ${safe(r.category)}</span><strong>${safe(r.line)}</strong><small>Open line reference ↗</small></a>`).join('');
   out.querySelector('[data-finder-box-guide]').textContent=v.box==='important'?'Packaging matters to you: for any real item, check actual box photographs, opening history if documented, and packaging wear separately from the figure.':v.box==='flexible'?'Open to no-box figures? Confirm the exact figure photos, included base, accessories and missing parts before considering a purchase.':'Unsure about packaging? Use the Condition Guide to compare figure, box, parts and disclosed flaws separately.';
   out.hidden=false;out.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});out.focus({preventScroll:true});
  });

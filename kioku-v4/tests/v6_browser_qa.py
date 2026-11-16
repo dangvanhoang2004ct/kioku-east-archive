@@ -1,17 +1,19 @@
 from playwright.sync_api import sync_playwright
 from pathlib import Path
-import json
+import json,os
 root=Path(__file__).resolve().parent.parent
-preview=(root/'KIOKU-V5-Interactive-Website-Preview.html').read_text()
+preview=(root/'KIOKU-V6-Interactive-Website-Preview.html').read_text()
 report=[]
 with sync_playwright() as p:
- browser=p.chromium.launch(executable_path='/usr/bin/chromium' if Path('/usr/bin/chromium').exists() else None,headless=True,args=['--no-sandbox','--disable-dev-shm-usage'] if Path('/usr/bin/chromium').exists() else [])
+ browser_name=os.environ.get('KIOKU_BROWSER','chromium')
+ browser_type=getattr(p,browser_name)
+ browser=browser_type.launch(headless=True)
  for width in [320,375,390,768,1440]:
   page=browser.new_page(viewport={'width':width,'height':900},device_scale_factor=1)
   errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
   page.set_content(preview,wait_until='domcontentloaded',timeout=30000)
   frame=page.frame_locator('#kioku-frame')
-  assert 'Hold the' in frame.locator('h1').first.inner_text(timeout=12000)
+  assert 'remember' in frame.locator('h1').first.inner_text(timeout=12000).lower()
   page.wait_for_timeout(650)
   overflow=frame.locator('body').evaluate('e=>({doc:document.documentElement.scrollWidth,viewport:innerWidth})')
   assert overflow['doc'] <= overflow['viewport']+2,(width,'home overflow',overflow)
@@ -28,6 +30,7 @@ with sync_playwright() as p:
   frame.locator('[data-close-search]').click()
   page.locator('[data-page="collection"]').click();page.wait_for_timeout(500)
   assert frame.locator('[data-grid] .catalog-card').count()==6
+  if width<=920:frame.locator('.filter-disclosure summary').click()
   frame.locator('[data-maker]').select_option('MegaHouse')
   assert frame.locator('[data-grid] .catalog-card').count()==3
   frame.locator('[data-maker]').select_option('')
@@ -44,7 +47,7 @@ with sync_playwright() as p:
   for field,value in [('maker','MegaHouse'),('style','portrait'),('box','flexible')]:frame.locator(f'input[name="{field}"][value="{value}"]').check()
   frame.locator('[data-finder-form] button[type=submit]').click()
   assert frame.locator('[data-finder-recommendations] a').count()>=2
-  assert 'No-box' in frame.locator('[data-finder-box-guide]').inner_text() or 'no-box' in frame.locator('[data-finder-box-guide]').inner_text()
+  assert 'accessories' in frame.locator('[data-finder-box-guide]').inner_text().lower() or 'condition guide' in frame.locator('[data-finder-box-guide]').inner_text().lower()
   page.locator('[data-page="condition-guide"]').click();page.wait_for_timeout(550)
   frame.locator('[data-condition-form] input[name=item]').fill('My figure')
   frame.locator('[data-condition-form] select[name=box]').select_option('No box')
@@ -58,7 +61,7 @@ with sync_playwright() as p:
   frame.locator('[data-zoom-close]').click()
   assert not frame.locator('[data-lightbox]').is_visible()
   assert not errors,(width,'page errors',errors)
-  report.append({'width':width,'overflow':overflow,'errors':errors,'search':True,'filter':True,'compare':True,'finder':True,'condition':True,'detail':True})
+  report.append({'browser':browser_name,'width':width,'overflow':overflow,'errors':errors,'search':True,'filter':True,'compare':True,'finder':True,'condition':True,'detail':True})
   page.close()
  browser.close()
 print(json.dumps(report,indent=2))

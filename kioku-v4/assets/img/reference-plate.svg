@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 680" role="img" aria-labelledby="title desc">
+<title id="title">KIOKU editorial reference plate</title><desc id="desc">An abstract arrangement of catalog rules, a shelf line, and a memory marker. It does not depict a product or provide measurements.</desc>
+<rect width="900" height="680" fill="#F4F3EF"/><rect x="58" y="54" width="784" height="572" fill="#fff" stroke="#C9CBD4"/>
+<path d="M92 126h716M92 548h716" stroke="#15182A" stroke-width="2"/><path d="M92 158h252M92 178h172M92 196h223" stroke="#777B90" stroke-width="2"/>
+<rect x="470" y="182" width="250" height="230" fill="#E6E9FC"/><path d="M497 374h196" stroke="#15182A" stroke-width="3"/><path d="M514 366V232h82v134M618 366V267h54v99" fill="none" stroke="#2936A3" stroke-width="4"/><circle cx="555" cy="247" r="13" fill="#DE5437"/><path d="M555 265v47m-21 23 21-23 20 23" fill="none" stroke="#2936A3" stroke-width="4"/>
+<path d="M92 454h116M92 474h180M92 494h132" stroke="#C9CBD4" stroke-width="2"/><path d="M748 126v422" stroke="#C9CBD4" stroke-width="1"/><path d="M770 168v360" stroke="#2936A3" stroke-width="2"/><text x="92" y="586" fill="#51566A" font-family="system-ui,sans-serif" font-size="16" letter-spacing="2">REFERENCE PLATE · NO PRODUCT PHOTOGRAPHY</text>
+</svg>
