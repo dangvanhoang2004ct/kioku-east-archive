@@ -7,7 +7,9 @@ for(const file of pages)cpSync(join(base,file),join(out,file));
 for(const f of ['assets/site.css','brand/kioku-favicon.svg','brand/kioku-lockup.svg','brand/kioku-mark.svg']){
  mkdirSync(join(out,f.split('/').slice(0,-1).join('/')),{recursive:true});cpSync(join(base,f),join(out,f));
 }
-const diagram='assets/img/reference-plate.svg';mkdirSync(join(out,'assets/img'),{recursive:true});cpSync(join(base,diagram),join(out,diagram));
+for(const asset of ['assets/img/reference-plate.svg','assets/img/kioku-dragon-flow.svg','assets/img/kioku-dragon-still.svg']){
+ mkdirSync(join(out,'assets/img'),{recursive:true});cpSync(join(base,asset),join(out,asset));
+}
 for(const f of ['features/shared/site.js','features/catalog/records.js','features/storefront/favorites.js','features/storefront/catalog.js','features/storefront/detail.js','features/storefront/compare.js','features/discovery/finder.js','features/condition/notes.js']){
  mkdirSync(join(out,f.split('/').slice(0,-1).join('/')),{recursive:true});cpSync(join(base,f),join(out,f));
 }
