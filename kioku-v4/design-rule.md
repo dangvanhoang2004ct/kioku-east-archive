@@ -72,3 +72,9 @@ Tệp này chỉ nằm ở `kioku-v4/design-rule.md`. **Không copy/sync/ghi đ�
 - Hình vẽ nguồn là texture của một lưới WebGL chuyển động theo sóng thân–đuôi (đầu gần ổn định). Chữ KIOKU có thể đứng yên trong cùng sân khấu, miễn là không tạo hai con rồng.
 - Giữ nhận diện hình dáng đầu, sừng/râu, lớp bụng sáng, phối màu xanh; không tự tạo lại rồng bằng ảnh sinh AI. Không phóng đại WebGL textured surface thành rigged mesh 3D hoàn chỉnh.
 - Hoạt ảnh phải có `prefers-reduced-motion` và fallback tĩnh khi GPU/WebGL lỗi. Không thể coi Cloudflare build success là bằng chứng hoạt ảnh render thành công.
+
+## 12. Mobile UX, animation control and Blender upgrade
+- On 390×844 mobile, primary Collection CTA belongs in the **first screen** immediately below the shortened hero, not below all introduction copy. Avoid duplicate visible CTAs.
+- Animated dragon must have functional Pause/Play control, button state/accessibility labels and static fallback when WebGL is unsupported. Respect `prefers-reduced-motion` even when the setting changes at runtime.
+- Smooth motion via time-based interpolation, conservative grid resolution/DPR and gentle body-wave amplitude. Do not replace the approved blue dragon with a second decorative dragon.
+- Blender direction is future **full volumetric** modeling/rigging from the original artwork, distinct from the current 2.5D textured WebGL surface. Preserve original face, horns/whiskers, belly plates and silhouette; use bone weights and export compact `.glb` with one idle animation only after visual approval. Never claim an image alone is a full rigged 3D model.
