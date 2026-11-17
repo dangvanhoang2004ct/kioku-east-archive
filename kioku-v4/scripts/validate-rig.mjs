@@ -1,6 +1,6 @@
 import {readFileSync} from 'node:fs';
 import {resolve,join} from 'node:path';
-const file=join(resolve(import.meta.dirname,'..'),'assets','models','kioku-river-guardian-v2.glb');
+const file=join(resolve(import.meta.dirname,'..'),'assets','models','kioku-river-guardian-v4-review.glb');
 const b=readFileSync(file);
 if(b.toString('utf8',0,4)!=='glTF'||b.readUInt32LE(4)!==2||b.readUInt32LE(8)!==b.length)
  throw Error('Invalid River Guardian GLB header');
