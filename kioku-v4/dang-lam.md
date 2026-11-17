@@ -41,3 +41,10 @@ Chỉ sửa repository Kioku. Không ghi đè mã, quy tắc, tài sản hoặc 
 - [x] Đã tạo asset SVG vector hóa từ đường nét của ảnh gốc (mẫu logo trung tâm trong sheet): `assets/img/kioku-owner-dragon-logo.svg`, thêm vào trang Home và quy trình build trên PR #3. Đây là bản truy nét đơn giản hóa, không phải bản PNG gốc đầy đủ gradient.
 - [x] Tầng WebGL 3D vẫn giữ và chuyển động phía sau; logo/rồng minh họa nằm phía trước trên nền giấy sáng để giữ tương phản chữ navy, trang vẫn theo nhận diện midnight/lavender.
 - [ ] Xác minh Cloudflare Preview/Production và thiết bị thật sau merge; không nhận rằng asset mới là mô hình 3D có khớp hình minh họa 1:1.
+
+## Khắc phục lỗi hiển thị rồng 3D — 17/11/2026
+- [x] Đã xác định hồi quy: thẻ `hero-owner-art` cao ~1.100px ở giữa sân khấu với nền giấy sáng che WebGL, trong khi `.hero-dragon` bị giảm opacity 0.35/0.28. Đây là lỗi layer/CSS, không đủ bằng chứng để kết luận hỏng mô hình 3D.
+- [x] PR #4: di chuyển logo rồng của chủ thương hiệu xuống phần giới thiệu **bên dưới** sân khấu, bật rồng WebGL opacity 1, gỡ CSS ẩn fallback ở reduced-motion, chỉ đánh dấu canvas sẵn sàng sau frame vẽ không lỗi; bổ sung assertion chống hồi quy.
+- [x] Cloudflare Preview PR #4 tại `https://972beb48.kioku-east-archive.pages.dev/` cho commit `63a801eb` báo deploy SUCCESS. Chromium layout fixture ở 320/375/390/768/1440 không đè hình 3D, không horizontal overflow.
+- [ ] Môi trường browser hiện không cung cấp WebGL/GPU và không truy cập Cloudflare URL trực tiếp để đo render thật; **không tuyên bố hoạt ảnh 3D đã được kiểm tra trực quan trên Safari/Chromium thực tế**.
+- [ ] Sau merge xác minh Cloudflare Production check khớp SHA; nếu trình duyệt người dùng vẫn không hỗ trợ WebGL thì fallback SVG phải hiện rõ.
