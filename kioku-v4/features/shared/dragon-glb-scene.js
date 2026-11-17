@@ -1,252 +1,327 @@
-/* KIOKU 3D prototype — ONE volumetric skinned dragon loaded from GLB.
-   WebGL 1, no CDN, no fake AI renderer. PR #5 art remains static fallback.
-   This script is deliberately standalone to keep the seven existing pages stable.
-*/
+/* KIOKU River Guardian — one volumetric, skinned GLB from the owner's Blender project.
+ * WebGL1, no CDN; supports the real 10-bone, 6-material, 6-second asset.
+ * 2.5D PR #5 logo is a STATIC FALLBACK only, never a second animated dragon.
+ */
 (() => {
   'use strict';
   const root = document.querySelector('[data-dragon-scene]');
   const canvas = root?.querySelector('[data-dragon-canvas]');
   const toggle = document.querySelector('[data-dragon-motion-toggle]');
   if (!root || !canvas) return;
+
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-  let paused=false;
+  let paused = false, ready = false, visible = true, running = true;
+  let frame = 0, elapsed = 0, lastFrame = 0, shown = false;
+  let dragging = false, previousX = 0, previousY = 0;
+  let targetYaw = -0.11, targetPitch = 0.035, yaw = targetYaw, pitch = targetPitch;
   let gl;
-  try { gl=canvas.getContext('webgl',{alpha:true,antialias:true,depth:true,premultipliedAlpha:false,powerPreference:'low-power'}); }
-  catch { gl=null; }
-  if (!gl) { setToggle('Motion unavailable', true); return; }
-  let running=true, ready=false, loading=true, shown=false;
-  let visible=true, frame=0, clock=0, previous=0;
-  let drag=false, px=0, py=0, targetYaw=-0.08, targetPitch=0.02, yaw=-0.08, pitch=0.02;
-  let mesh=null, skin=null, bones=null, tracks=null, duration=8;
-  let buffers=[], program=null, uniforms={}, count=0;
-  const DURATION = 8;
-  function setToggle(label,disabled){
-    if(!toggle)return;
-    toggle.textContent=label;
-    toggle.disabled=disabled;
-    toggle.setAttribute('aria-pressed',String(paused));
+  const setToggle = (label, disabled) => {
+    if (!toggle) return;
+    toggle.textContent = label;
+    toggle.disabled = disabled;
+    toggle.setAttribute('aria-pressed', String(paused));
+  };
+  function stop() {
+    if (frame) cancelAnimationFrame(frame);
+    frame = 0;
+    lastFrame = 0;
   }
-  function fallback(message){
-    if(message)console.warn('KIOKU 3D prototype fallback:',message);
-    running=false;ready=false;loading=false;stop();
-    root.classList.remove('is-ready');root.dataset.dragonState='fallback';
-    setToggle('Motion unavailable',true);
+  function fallback(reason) {
+    if (reason) console.warn('KIOKU River Guardian fallback:', reason);
+    running = false;
+    ready = false;
+    stop();
+    root.classList.remove('is-ready');
+    root.dataset.dragonState = 'fallback';
+    setToggle('Motion unavailable', true);
   }
-  function stop(){if(frame)cancelAnimationFrame(frame);frame=0;previous=0;}
-  function start(){if(running&&ready&&!paused&&!reduced.matches&&visible&&!document.hidden&&!frame)frame=requestAnimationFrame(draw);}
-  function compile(type,source){
-    const out=gl.createShader(type);gl.shaderSource(out,source);gl.compileShader(out);
-    if(!gl.getShaderParameter(out,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(out)||'shader compilation failed');
-    return out;
-  }
-  const VERTEX=`precision highp float;
+  try {
+    gl = canvas.getContext('webgl', {
+      alpha: true, antialias: true, depth: true, premultipliedAlpha: false,
+      powerPreference: 'low-power'
+    });
+  } catch { gl = null; }
+  if (!gl) { fallback('WebGL unavailable'); return; }
+  const DURATION_DEFAULT = 6;
+  let model, program, uniforms, draws = [], duration = DURATION_DEFAULT;
+
+  const VERTEX = `precision highp float;
 attribute vec3 a_position;
 attribute vec3 a_normal;
-attribute vec4 a_color;
 attribute vec4 a_joint;
 attribute vec4 a_weight;
-uniform mat4 u_bones[11];
+uniform mat4 u_bones[10];
 uniform mat4 u_orbit;
 uniform vec4 u_frame;
 varying vec3 v_normal;
-varying vec3 v_color;
-mat4 boneAt(float idx){
-  mat4 result=u_bones[0];
-  for(int i=1;i<11;i++){
-    if(idx>float(i)-0.5)result=u_bones[i];
+mat4 boneAt(float index) {
+  mat4 result = u_bones[0];
+  for (int i=1; i<10; i++) {
+    if (index > float(i)-0.5) result = u_bones[i];
   }
   return result;
 }
-void main(){
-  mat4 skin=boneAt(a_joint.x)*a_weight.x + boneAt(a_joint.y)*a_weight.y;
-  vec4 p=u_orbit*(skin*vec4(a_position,1.));
-  vec3 n=(u_orbit*skin*vec4(a_normal,0.)).xyz;
-  v_normal=normalize(n);
-  v_color=a_color.rgb;
-  gl_Position=vec4((p.x-u_frame.z)*u_frame.x,p.y*u_frame.y,p.z*0.045,1.0+p.z*0.035);
+void main() {
+  mat4 skin = boneAt(a_joint.x)*a_weight.x + boneAt(a_joint.y)*a_weight.y;
+  vec4 p = u_orbit * skin * vec4(a_position,1.0);
+  v_normal = normalize((u_orbit * skin * vec4(a_normal,0.0)).xyz);
+  gl_Position = vec4((p.x-u_frame.z)*u_frame.x,
+                     (p.y-u_frame.w)*u_frame.y,
+                     p.z*0.045, 1.0+p.z*0.045);
 }`;
-  const FRAGMENT=`precision mediump float;
+  const FRAGMENT = `precision mediump float;
 varying vec3 v_normal;
-varying vec3 v_color;
-void main(){
-  vec3 n=normalize(v_normal);
-  vec3 keyLight=normalize(vec3(-0.4,0.8,0.8));
-  vec3 fill=normalize(vec3(0.4,-0.2,0.7));
-  float light=0.52 + 0.37*max(0.,dot(n,keyLight)) + 0.13*max(0.,dot(n,fill));
-  float rim=pow(1.-abs(n.z),3.0);
-  vec3 rgb=v_color*light + vec3(.07,.13,.17)*rim*.55;
-  gl_FragColor=vec4(rgb,1.);
+uniform vec3 u_tint;
+void main() {
+  vec3 n = normalize(v_normal);
+  vec3 lightA = normalize(vec3(-0.46,0.80,0.82));
+  vec3 lightB = normalize(vec3(0.54,-0.22,0.74));
+  float lit = 0.46 + 0.37*max(dot(n,lightA),0.0)
+                    + 0.15*max(dot(n,lightB),0.0);
+  float rim = pow(1.0-abs(n.z),2.3);
+  vec3 base = pow(max(u_tint,vec3(0.0)),vec3(0.91));
+  vec3 rgb = base*lit + vec3(0.062,0.10,0.16)*rim*0.48;
+  gl_FragColor = vec4(rgb,1.0);
 }`;
-  const identity=()=>new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]);
-  function multiply(a,b){
-    const o=new Float32Array(16);
-    for(let c=0;c<4;c++)for(let r=0;r<4;r++){
-      let sum=0;for(let k=0;k<4;k++)sum+=a[k*4+r]*b[c*4+k];
-      o[c*4+r]=sum;
+  const identity = () => new Float32Array([
+    1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1
+  ]);
+  function multiply(a,b) {
+    const out = new Float32Array(16);
+    for (let col=0;col<4;col++) for(let row=0;row<4;row++) {
+      let v=0;
+      for (let k=0;k<4;k++) v+=a[k*4+row]*b[col*4+k];
+      out[col*4+row]=v;
     }
-    return o;
+    return out;
   }
-  function transform(q,xyz){
-    const [x,y,z,w]=q;const [tx,ty,tz]=xyz;
-    const o=new Float32Array([
+  function transform(q,t) {
+    const [x,y,z,w] = q, [tx,ty,tz] = t;
+    return new Float32Array([
       1-2*(y*y+z*z),2*(x*y+z*w),2*(x*z-y*w),0,
       2*(x*y-z*w),1-2*(x*x+z*z),2*(y*z+x*w),0,
       2*(x*z+y*w),2*(y*z-x*w),1-2*(x*x+y*y),0,
       tx,ty,tz,1
     ]);
-    return o;
   }
-  function quatLerp(a,b,f){
-    const dot=a[0]*b[0]+a[1]*b[1]+a[2]*b[2]+a[3]*b[3];
-    const sign=dot>=0?1:-1;
-    const q=a.map((v,i)=>v*(1-f)+b[i]*f*sign);
-    const n=Math.hypot(...q)||1;return q.map(v=>v/n);
-  }
-  function readGlb(arrayBuffer){
-    const dv=new DataView(arrayBuffer);
-    if(dv.getUint32(0,true)!==0x46546c67||dv.getUint32(4,true)!==2||dv.getUint32(8,true)!==arrayBuffer.byteLength)
-      throw new Error('Invalid glTF 2.0 binary header');
-    let offset=12, json=null, bin=null;
-    while(offset+8<=arrayBuffer.byteLength){
-      const length=dv.getUint32(offset,true),type=dv.getUint32(offset+4,true);offset+=8;
-      if(offset+length>arrayBuffer.byteLength)throw new Error('Invalid GLB chunk length');
-      const chunk=arrayBuffer.slice(offset,offset+length);
-      if(type===0x4e4f534a)json=JSON.parse(new TextDecoder().decode(chunk));
-      if(type===0x004e4942)bin=chunk;
-      offset+=length;
+  function slerp(a,b,t) {
+    let cosine = a.reduce((s,x,i)=>s+x*b[i],0);
+    const q = cosine < 0 ? b.map(v=>-v) : b;
+    cosine = Math.abs(cosine);
+    let x,y;
+    if (cosine > 0.9995) { x=1-t; y=t; }
+    else {
+      const angle = Math.acos(Math.min(1,cosine)), s=Math.sin(angle);
+      x=Math.sin((1-t)*angle)/s; y=Math.sin(t*angle)/s;
     }
-    if(!json||!bin||!json.skins?.length||!json.animations?.length)throw new Error('GLB needs mesh, skin, and animation');
-    const accessor=index=>{
-      const a=json.accessors[index],v=json.bufferViews[a.bufferView];
-      if(v.byteStride)throw new Error('Unsupported interleaved accessor');
-      const n={SCALAR:1,VEC2:2,VEC3:3,VEC4:4,MAT4:16}[a.type];
-      const Ty={5126:Float32Array,5123:Uint16Array,5125:Uint32Array}[a.componentType];
-      if(!Ty||!n)throw new Error('Unsupported GLB accessor type');
-      const at=(v.byteOffset||0)+(a.byteOffset||0),bytes=n*a.count*Ty.BYTES_PER_ELEMENT;
-      if(at+bytes>bin.byteLength)throw new Error('GLB accessor exceeds buffer');
-      return new Ty(bin.slice(at,at+bytes));
-    };
-    const prim=json.meshes[0].primitives[0];
-    const data={pos:accessor(prim.attributes.POSITION),normal:accessor(prim.attributes.NORMAL),
-      color:accessor(prim.attributes.COLOR_0),joint:accessor(prim.attributes.JOINTS_0),
-      weight:accessor(prim.attributes.WEIGHTS_0),indices:accessor(prim.indices)};
-    const bind=accessor(json.skins[0].inverseBindMatrices);
-    const ids=json.skins[0].joints;
-    if(ids.length!==11||bind.length!==11*16)throw new Error('Expected KIOKU 11-bone rig');
-    const channelMap=new Map();const anim=json.animations[0];
-    for(const ch of anim.channels){
-      if(ch.target.path==='rotation'){
-        const sp=anim.samplers[ch.sampler];
-        channelMap.set(ch.target.node,{times:accessor(sp.input),rots:accessor(sp.output)});
-      }
-    }
-    if(channelMap.size!==ids.length)throw new Error('Missing joint animation tracks');
-    return {json,data,bind,ids,channelMap};
+    const v=a.map((n,i)=>x*n+y*q[i]);
+    const norm=Math.hypot(...v)||1;
+    return v.map(n=>n/norm);
   }
-  function configure(g){
-    const vs=compile(gl.VERTEX_SHADER,VERTEX),fs=compile(gl.FRAGMENT_SHADER,FRAGMENT);
+  function parseGLB(arrayBuffer) {
+    const d=new DataView(arrayBuffer);
+    if(d.getUint32(0,true)!==0x46546c67 || d.getUint32(4,true)!==2 ||
+       d.getUint32(8,true)!==arrayBuffer.byteLength) throw new Error('Invalid GLB header');
+    let json, bin, off=12;
+    while(off+8<=arrayBuffer.byteLength) {
+      const len=d.getUint32(off,true), type=d.getUint32(off+4,true);off+=8;
+      if(off+len>arrayBuffer.byteLength)throw new Error('Truncated GLB chunk');
+      if(type===0x4e4f534a)json=JSON.parse(new TextDecoder().decode(arrayBuffer.slice(off,off+len)));
+      if(type===0x004e4942)bin=arrayBuffer.slice(off,off+len);
+      off+=len;
+    }
+    if(!json?.meshes?.length || !json?.skins?.length || !json?.animations?.length || !bin)
+      throw new Error('Missing GLB mesh, rig or animation');
+    const components={SCALAR:1,VEC2:2,VEC3:3,VEC4:4,MAT4:16};
+    const typed={5121:Uint8Array,5123:Uint16Array,5125:Uint32Array,5126:Float32Array};
+    function accessor(index) {
+      const a=json.accessors[index], view=json.bufferViews[a.bufferView];
+      const T=typed[a.componentType], count=components[a.type];
+      if(!T || !count || view.byteStride || a.sparse) throw new Error('Unsupported GLB accessor');
+      const at=(view.byteOffset||0)+(a.byteOffset||0), end=at+a.count*count*T.BYTES_PER_ELEMENT;
+      if(end>bin.byteLength)throw new Error('GLB accessor outside buffer');
+      return new T(bin.slice(at,end));
+    }
+    const skin=json.skins[0];
+    if(skin.joints.length!==10)throw new Error('River Guardian requires the 10-bone Blender rig');
+    const invBind=accessor(skin.inverseBindMatrices);
+    if(invBind.length!==skin.joints.length*16)throw new Error('Invalid inverse bind matrix count');
+    const parentByNode=new Map();
+    for(let i=0;i<json.nodes.length;i++)for(const child of json.nodes[i].children||[])parentByNode.set(child,i);
+    const channels=new Map();
+    for(const channel of json.animations[0].channels) {
+      if(channel.target.path!=='rotation')continue;
+      const sample=json.animations[0].samplers[channel.sampler];
+      channels.set(channel.target.node,{time:accessor(sample.input),quat:accessor(sample.output)});
+    }
+    const clip=Math.max(...[...channels.values()].map(c=>c.time.at(-1)||0),DURATION_DEFAULT);
+    const primitives=json.meshes[0].primitives.map(prim=>{
+      const a=prim.attributes;
+      if(!['POSITION','NORMAL','JOINTS_0','WEIGHTS_0'].every(key=>key in a))
+        throw new Error('Incomplete skinned primitive');
+      const idx=accessor(prim.indices);
+      // 32-bit indices are legal in GLB, but WebGL1 needs an extension to draw them.
+      // This model has under 65k vertices per part, so convert safely to Uint16.
+      if(idx.length && Math.max(...idx.subarray(0,Math.min(idx.length,400)))>65535)
+        throw new Error('Unsupported 32-bit mesh index');
+      const position=accessor(a.POSITION), normal=accessor(a.NORMAL),
+            joint=accessor(a.JOINTS_0), weight=accessor(a.WEIGHTS_0);
+      const n=position.length/3;
+      if(n>65535)throw new Error('Single part too large for WebGL1');
+      let tint=json.materials?.[prim.material]?.pbrMetallicRoughness?.baseColorFactor||[0.31,0.48,0.67,1];
+      return {position,normal,joint,weight,indices:new Uint16Array(idx),tint};
+    });
+    if(primitives.length!==6)throw new Error('Expected six Blender material parts');
+    return {json,accessor,primitives,invBind,joints:skin.joints,parentByNode,channels,clip};
+  }
+  function shader(type,src) {
+    const obj=gl.createShader(type);gl.shaderSource(obj,src);gl.compileShader(obj);
+    if(!gl.getShaderParameter(obj,gl.COMPILE_STATUS))
+      throw new Error(gl.getShaderInfoLog(obj)||'Shader compilation failed');
+    return obj;
+  }
+  function configure(data) {
+    const vs=shader(gl.VERTEX_SHADER,VERTEX),fs=shader(gl.FRAGMENT_SHADER,FRAGMENT);
     program=gl.createProgram();gl.attachShader(program,vs);gl.attachShader(program,fs);
     gl.linkProgram(program);
-    if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(program)||'GLB renderer link failed');
+    if(!gl.getProgramParameter(program,gl.LINK_STATUS))
+      throw new Error(gl.getProgramInfoLog(program)||'Shader link failed');
     gl.useProgram(program);
-    const specs=[['a_position','pos',3,gl.FLOAT],['a_normal','normal',3,gl.FLOAT],['a_color','color',4,gl.FLOAT],
+    const attrs=[['a_position','position',3,gl.FLOAT],['a_normal','normal',3,gl.FLOAT],
       ['a_joint','joint',4,gl.UNSIGNED_SHORT],['a_weight','weight',4,gl.FLOAT]];
-    for(const [name,key,size,type] of specs){
-      const loc=gl.getAttribLocation(program,name);
-      if(loc<0)throw new Error('Attribute not found: '+name);
-      const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
-      gl.bufferData(gl.ARRAY_BUFFER,g.data[key],gl.STATIC_DRAW);
-      gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,size,type,false,0,0);
-      buffers.push(buffer);
-    }
-    const indexBuffer=gl.createBuffer();gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,indexBuffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,g.data.indices,gl.STATIC_DRAW);
-    count=g.data.indices.length;
-    uniforms={bone:gl.getUniformLocation(program,'u_bones[0]'),orbit:gl.getUniformLocation(program,'u_orbit'),
-      frame:gl.getUniformLocation(program,'u_frame')};
-    mesh=g;
-    gl.enable(gl.DEPTH_TEST);gl.disable(gl.CULL_FACE); // model material is double-sided
-    gl.disable(gl.BLEND);
-    const firstTrack=g.channelMap.get(g.ids[0]);duration=firstTrack.times[firstTrack.times.length-1]||DURATION;
+    const locations=attrs.map(([name])=>{
+      const id=gl.getAttribLocation(program,name);
+      if(id<0)throw new Error('Missing attribute '+name);
+      gl.enableVertexAttribArray(id);
+      return id;
+    });
+    draws=data.primitives.map(part=>{
+      const vbos=attrs.map(([,key])=>{
+        const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);
+        gl.bufferData(gl.ARRAY_BUFFER,part[key],gl.STATIC_DRAW);
+        return buf;
+      });
+      const ebo=gl.createBuffer();gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ebo);
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,part.indices,gl.STATIC_DRAW);
+      return {vbos,ebo,count:part.indices.length,color:part.tint};
+    });
+    uniforms={bones:gl.getUniformLocation(program,'u_bones[0]'),
+      orbit:gl.getUniformLocation(program,'u_orbit'),frame:gl.getUniformLocation(program,'u_frame'),
+      tint:gl.getUniformLocation(program,'u_tint')};
+    gl.enable(gl.DEPTH_TEST);gl.disable(gl.CULL_FACE);gl.disable(gl.BLEND);
+    model={...data,attrs,locations};
+    duration=data.clip;
   }
-  function updateBones(time){
-    const g=mesh,joints=new Float32Array(11*16),world=[];
-    for(let i=0;i<g.ids.length;i++){
-      const nodeId=g.ids[i],node=g.json.nodes[nodeId],track=g.channelMap.get(nodeId);
-      const ts=track.times,rots=track.rots,t=time%duration;
-      let k=0;while(k<ts.length-2&&ts[k+1]<t)k++;
-      const dt=ts[k+1]-ts[k]||1,f=Math.max(0,Math.min(1,(t-ts[k])/dt));
-      const q=quatLerp(Array.from(rots.slice(k*4,k*4+4)),Array.from(rots.slice((k+1)*4,(k+1)*4+4)),f);
+  function uploadBones(t) {
+    const matrices=new Float32Array(10*16);
+    const worlds=new Map();
+    const compute=(id)=>{
+      if(worlds.has(id))return worlds.get(id);
+      const node=model.json.nodes[id],track=model.channels.get(id);
+      let q=node.rotation||[0,0,0,1];
+      if(track) {
+        const ticks=track.time, sample=t%duration;
+        let i=0;
+        while(i<ticks.length-2 && ticks[i+1]<sample)i++;
+        const dt=ticks[i+1]-ticks[i]||1, a=Math.max(0,Math.min(1,(sample-ticks[i])/dt));
+        q=slerp(Array.from(track.quat.slice(i*4,i*4+4)),
+                Array.from(track.quat.slice((i+1)*4,(i+1)*4+4)),a);
+      }
       const local=transform(q,node.translation||[0,0,0]);
-      world[i]=i===0?local:multiply(world[i-1],local);
-      const inv=g.bind.slice(i*16,i*16+16),skinned=multiply(world[i],inv);
-      joints.set(skinned,i*16);
-    }
-    gl.uniformMatrix4fv(uniforms.bone,false,joints);
+      const parent=model.parentByNode.get(id);
+      const global=parent==null?local:multiply(compute(parent),local);
+      worlds.set(id,global);
+      return global;
+    };
+    model.joints.forEach((nodeId,index)=>{
+      const inv=model.invBind.slice(index*16,index*16+16);
+      matrices.set(multiply(compute(nodeId),inv),index*16);
+    });
+    gl.uniformMatrix4fv(uniforms.bones,false,matrices);
   }
-  function draw(now){
-    frame=0;if(!running||!ready||paused||reduced.matches||document.hidden||!visible)return;
-    const dt=previous?Math.min((now-previous)/1000,0.055):0;previous=now;clock+=Math.max(0,dt);
-    const ease=1-Math.exp(-4.6*Math.max(.005,dt));
-    yaw+=(targetYaw-yaw)*ease;pitch+=(targetPitch-pitch)*ease;
-    const w=canvas.clientWidth,h=canvas.clientHeight;
-    if(!w||!h)return;
-    const pixelRatio=Math.min(devicePixelRatio||1,w<720?1.4:1.7);
-    const W=Math.round(w*pixelRatio),H=Math.round(h*pixelRatio);
-    if(W!==canvas.width||H!==canvas.height){canvas.width=W;canvas.height=H;gl.viewport(0,0,W,H);}
+  function start() {
+    if(ready && running && !paused && !reduced.matches && visible && !document.hidden && !frame)
+      frame=requestAnimationFrame(draw);
+  }
+  function draw(now) {
+    frame=0;
+    if(!ready || !running || paused || reduced.matches || document.hidden || !visible)return;
+    const dt=lastFrame?Math.min(Math.max((now-lastFrame)/1000,0),0.055):0;
+    lastFrame=now;elapsed+=dt;
+    yaw+=(targetYaw-yaw)*(1-Math.exp(-5.0*dt));
+    pitch+=(targetPitch-pitch)*(1-Math.exp(-5.0*dt));
+    const width=canvas.clientWidth,height=canvas.clientHeight;
+    if(!width||!height){start();return;}
+    const dpr=Math.min(window.devicePixelRatio||1,width<720?1.35:1.7);
+    const w=Math.round(width*dpr),h=Math.round(height*dpr);
+    if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h);}
     gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
     gl.useProgram(program);
-    updateBones(clock);
-    const qy=[0,Math.sin(yaw/2),0,Math.cos(yaw/2)],qx=[Math.sin(pitch/2),0,0,Math.cos(pitch/2)];
-    const orbit=multiply(transform(qx,[0,0,0]),transform(qy,[0,0,0]));
-    gl.uniformMatrix4fv(uniforms.orbit,false,orbit);
-    const aspect=w/h,small=w<720;
-    const width=small?8.9:11.75;
-    gl.uniform4f(uniforms.frame,2/width,2*aspect/width,small?0.75:0.25,0);
-    gl.drawElements(gl.TRIANGLES,count,gl.UNSIGNED_SHORT,0);
-    if(gl.getError()!==gl.NO_ERROR){fallback('WebGL draw error');return;}
+    uploadBones(elapsed);
+    const y=[0,Math.sin(yaw/2),0,Math.cos(yaw/2)];
+    const x=[Math.sin(pitch/2),0,0,Math.cos(pitch/2)];
+    gl.uniformMatrix4fv(uniforms.orbit,false,multiply(transform(x,[0,0,0]),transform(y,[0,0,0])));
+    const mobile=width<720;
+    gl.uniform4f(uniforms.frame,2/(mobile?10.7:11.7),mobile?.66:.60,-.38,.54);
+    for(const part of draws) {
+      model.attrs.forEach(([,key,size,type],i)=>{
+        gl.bindBuffer(gl.ARRAY_BUFFER,part.vbos[i]);
+        gl.vertexAttribPointer(model.locations[i],size,type,false,0,0);
+      });
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,part.ebo);
+      gl.uniform3f(uniforms.tint,part.color[0],part.color[1],part.color[2]);
+      gl.drawElements(gl.TRIANGLES,part.count,gl.UNSIGNED_SHORT,0);
+    }
+    if(gl.getError()!==gl.NO_ERROR){fallback('GPU render error');return;}
     if(!shown){shown=true;root.classList.add('is-ready');root.dataset.dragonState='animated';setToggle('Pause motion',false);}
     start();
   }
   toggle?.addEventListener('click',()=>{
     if(!ready||!running||reduced.matches)return;
     paused=!paused;
-    if(paused){stop();setToggle('Play motion',false);root.dataset.dragonState='paused';}
-    else {setToggle('Pause motion',false);root.dataset.dragonState='animated';start();}
+    if(paused){stop();root.dataset.dragonState='paused';setToggle('Play motion',false);}
+    else{root.dataset.dragonState='animated';setToggle('Pause motion',false);start();}
   });
   canvas.addEventListener('pointerdown',e=>{
     if(!ready||reduced.matches)return;
-    drag=true;px=e.clientX;py=e.clientY;canvas.setPointerCapture?.(e.pointerId);
+    dragging=true;previousX=e.clientX;previousY=e.clientY;
+    canvas.setPointerCapture?.(e.pointerId);
   });
   canvas.addEventListener('pointermove',e=>{
-    if(!drag)return;
-    targetYaw+=(e.clientX-px)*.009;targetPitch=Math.max(-.62,Math.min(.62,targetPitch+(e.clientY-py)*.006));
-    px=e.clientX;py=e.clientY;
+    if(!dragging)return;
+    targetYaw+=(e.clientX-previousX)*0.009;
+    targetPitch=Math.max(-.8,Math.min(.8,targetPitch+(e.clientY-previousY)*.006));
+    previousX=e.clientX;previousY=e.clientY;
   });
-  const endDrag=()=>{drag=false;};canvas.addEventListener('pointerup',endDrag);canvas.addEventListener('pointercancel',endDrag);
+  const release=()=>dragging=false;
+  canvas.addEventListener('pointerup',release);
+  canvas.addEventListener('pointercancel',release);
   canvas.addEventListener('keydown',e=>{
-    const amount=0.12;
-    if(e.key==='ArrowLeft')targetYaw-=amount;
-    else if(e.key==='ArrowRight')targetYaw+=amount;
-    else if(e.key==='ArrowUp')targetPitch=Math.max(-.62,targetPitch-amount);
-    else if(e.key==='ArrowDown')targetPitch=Math.min(.62,targetPitch+amount);
+    if(e.key==='ArrowLeft')targetYaw-=.12;
+    else if(e.key==='ArrowRight')targetYaw+=.12;
+    else if(e.key==='ArrowUp')targetPitch=Math.max(-.8,targetPitch-.12);
+    else if(e.key==='ArrowDown')targetPitch=Math.min(.8,targetPitch+.12);
     else return;
     e.preventDefault();
   });
-  canvas.addEventListener('dblclick',()=>{targetYaw=-0.08;targetPitch=0.02;});
+  canvas.addEventListener('dblclick',()=>{targetYaw=-.11;targetPitch=.035;});
   if('IntersectionObserver' in window){
-    new IntersectionObserver(entries=>{visible=entries[0]?.isIntersecting??false;visible?start():stop();},{threshold:.01}).observe(root);
+    new IntersectionObserver(es=>{visible=es[0]?.isIntersecting??false;visible?start():stop();},{threshold:.01}).observe(root);
   }
   document.addEventListener('visibilitychange',()=>document.hidden?stop():start());
   reduced.addEventListener?.('change',()=>{
     if(reduced.matches){stop();root.classList.remove('is-ready');root.dataset.dragonState='fallback';setToggle('Motion reduced',true);}
-    else {paused=false;shown=false;setToggle(ready?'Pause motion':'Motion unavailable',!ready);start();}
+    else{paused=false;shown=false;setToggle(ready?'Pause motion':'Motion unavailable',!ready);start();}
   });
-  canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();fallback('context lost');});
+  canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();fallback('WebGL context lost');});
   if(reduced.matches){root.dataset.dragonState='fallback';setToggle('Motion reduced',true);}
-  const controller=new AbortController();
-  fetch('./assets/models/kioku-dragon-rig-v1.glb',{signal:controller.signal})
-    .then(response=>{if(!response.ok)throw new Error('GLB fetch '+response.status);return response.arrayBuffer();})
-    .then(buffer=>{const model=readGlb(buffer);configure(model);ready=true;loading=false;start();})
-    .catch(error=>fallback(error.message));
+  fetch('./assets/models/kioku-river-guardian-v2.glb')
+    .then(r=>{if(!r.ok)throw new Error('Model HTTP '+r.status);return r.arrayBuffer();})
+    .then(buffer=>{
+      const data=parseGLB(buffer);
+      configure(data);
+      ready=true;
+      start();
+    })
+    .catch(e=>fallback(e.message));
 })();

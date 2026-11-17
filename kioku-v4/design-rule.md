@@ -85,3 +85,10 @@ Tệp này chỉ nằm ở `kioku-v4/design-rule.md`. **Không copy/sync/ghi đ�
 - Bản prototype GLB procedural chỉ là bước kỹ thuật; yêu cầu mỹ thuật vẫn phải giữ linh vật rồng xanh gốc, chất liệu xanh navy / băng, tỉ lệ đầu, vảy và bụng có phân đốt. Mô hình thô không được mặc định coi là final.
 - Dùng Blender để sculpt/refine và kiểm tra weight-paint, xuất GLB khi có Blender thực tế. Giữ 1 rồng duy nhất, pause/play và `prefers-reduced-motion`, fallback minh họa gốc khi GPU lỗi, UX Collection trên mobile.
 - Chỉ đưa Production sau khi kiểm tra thực tế Safari/Chromium của mô hình đúng được duyệt; không merge chỉ dựa vào compile / Preview deploy.
+
+## 14. River Guardian source-first Blender workflow (approved 17/11/2026)
+- KIOKU source of truth for actual 3D is the **owner-provided** `KIOKU-River-Guardian-Blender.blend` with 10-bone, 6-second swimming animation; the matching Blender-compatible GLB has **six** materials/mesh primitives. Never replace it with the old 11-bone/8-second ChatGPT prototype.
+- Preserve the owner's exact source file untouched. Blender enhancements must be saved as a **separate .blend**, with a review GLB, and cannot be called tested unless run in Blender 5.3 on their Mac.
+- The web-side GLB may polish materials and lighting without rewriting the geometry or rig. Always support multi-material primitives and 10 bones, pause, reduced-motion, GPU fallback and keyboard/pointer orbit.
+- Only one animated dragon; the illustrated KIOKU still is a fallback when no GPU or reduced motion. Do not insert a second decorative dragon.
+- Production gate: genuine GPU Safari/WebKit/Chromium render, real rig deformation at different angles, mobile Collection CTA above fold, and owner's final visual approval.
