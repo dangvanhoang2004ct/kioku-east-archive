@@ -31,3 +31,8 @@
 
 ## Báo cáo
 Rất ngắn: **Đã làm / Kiểm thử / Chưa làm được / Cần hỗ trợ**. Ghi rõ branch/commit/PR/Preview, không nhận PASS khi chưa kiểm chứng.
+
+## KIOKU dragon integration — corrected requirement (17 Nov 2026)
+- Owner correction overrides previous 'two-layer dragons' art direction: one dragon only, with the approved illustrated blue dragon **textured onto the deforming WebGL mesh**. Do not show a separate static dragon card or old procedural dragon.
+- Static KIOKU wordmark may sit behind the moving dragon inside the same hero; use static composite only for reduced-motion/no-WebGL fallback.
+- Preserve the existing V6 collector functions, English content, mobile-first and approved midnight palette. Codex prompts in English and only for deployment where needed. Do not claim real GPU animation QA unless performed.
