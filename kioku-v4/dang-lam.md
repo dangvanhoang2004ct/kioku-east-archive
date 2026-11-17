@@ -26,3 +26,11 @@ Chỉ sửa repository Kioku. Không ghi đè mã, quy tắc, tài sản hoặc 
 - [ ] Chưa nghiệm thu tương tác và khung hình WebGL trên Safari/Chromium thực tế; chưa gọi QA browser PASS.
 - [ ] Chưa merge PR #3 hoặc thay Production; chờ chủ dự án xem Preview và xác nhận.
 - [ ] Điều chỉnh bản 3D nếu hình khối chưa truyền đạt đúng linh vật theo ý chủ thương hiệu, tránh thay logo Shelf Echo.
+
+## Quyết định duyệt rồng KIOKU — 17/11/2026
+- [x] Người dùng **chấp nhận hình dáng rồng 3D và chuyển động tổng thể** của bản Preview PR #3; giữ nguyên silhouette, form, phối màu và bố cục sân khấu.
+- [x] Yêu cầu tinh chỉnh đã được đưa vào `features/shared/dragon-scene.js` trên PR #3: sóng uốn lượn lan từ phần trước về đuôi, biên độ tăng dần về phía đuôi, phần đầu ổn định, độ biến dạng nhỏ; giữ sửa pháp tuyến để ánh sáng đúng với hình khối và hỗ trợ `prefers-reduced-motion`.
+- [x] Hero và header sử dụng asset nhận diện Shelf Echo **`brand/kioku-lockup-light.svg`** gốc, build copy asset vào `dist`; không tự tạo logo mới.
+- [x] ChatGPT chỉnh mã nguồn trực tiếp trên PR #3, ghi lại quyết định ở nhánh tài liệu PR #2; Codex chỉ còn merge/triển khai Production theo yêu cầu và kiểm chứng.
+- [ ] Kiểm chứng build, Preview và thao tác Safari/WebKit/Chromium của commit PR #3 mới trước Production; không đồng nhất push GitHub với site đã cập nhật.
+- [ ] Khi phát hành: merge PR #2 và PR #3 theo thứ tự an toàn, xác nhận Cloudflare Pages Production nhận đúng commit, không đụng Momo/RoleFit.
