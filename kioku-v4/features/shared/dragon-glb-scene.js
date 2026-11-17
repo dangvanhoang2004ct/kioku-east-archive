@@ -223,6 +223,16 @@ void main(){
     px=e.clientX;py=e.clientY;
   });
   const endDrag=()=>{drag=false;};canvas.addEventListener('pointerup',endDrag);canvas.addEventListener('pointercancel',endDrag);
+  canvas.addEventListener('keydown',e=>{
+    const amount=0.12;
+    if(e.key==='ArrowLeft')targetYaw-=amount;
+    else if(e.key==='ArrowRight')targetYaw+=amount;
+    else if(e.key==='ArrowUp')targetPitch=Math.max(-.62,targetPitch-amount);
+    else if(e.key==='ArrowDown')targetPitch=Math.min(.62,targetPitch+amount);
+    else return;
+    e.preventDefault();
+  });
+  canvas.addEventListener('dblclick',()=>{targetYaw=-0.08;targetPitch=0.02;});
   if('IntersectionObserver' in window){
     new IntersectionObserver(entries=>{visible=entries[0]?.isIntersecting??false;visible?start():stop();},{threshold:.01}).observe(root);
   }
