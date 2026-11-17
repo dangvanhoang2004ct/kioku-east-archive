@@ -20,6 +20,8 @@
 - **EvondevKit** dẫn dắt điều hướng, tương tác, responsive, khả năng truy cập, trạng thái loading/empty/error.
 - Kiểm tra từng hành động có tác dụng thật; giữ Search, Filter/Sort, Favorites, Compare, Finder, Zoom, Condition Notes copy/export.
 - Tái sử dụng kiểm thử PASS còn phù hợp, kiểm thêm phần đã thay đổi; không yêu cầu Codex chụp ảnh; phân biệt kết quả QA báo cáo và QA tự xác minh.
+- Người dùng đã duyệt form và nhịp chuyển động tổng thể rồng 3D; chỉ tinh chỉnh sóng uốn thân/đuôi rất nhẹ, giữ logo KIOKU gốc, full-bleed hero và giới thiệu ở dưới. Không tự mở lại quyết định thiết kế đã duyệt.
+- Prompt gửi Codex phải viết bằng **tiếng Anh**, ngắn gọn. ChatGPT thực hiện patch mã và tài liệu trực tiếp nếu có quyền; Codex chỉ làm phát hành Production, kiểm chứng commit/URL sau khi merge. Không yêu cầu Codex tạo screenshot.
 
 ## Ranh giới bắt buộc
 - Không đọc/sửa/copy tài sản, endpoint, secret, mã nguồn hoặc design rules của Momo khi thực hiện nhiệm vụ Kioku.
