@@ -243,7 +243,7 @@ void main(){
     else {paused=false;shown=false;setToggle(ready?'Pause motion':'Motion unavailable',!ready);start();}
   });
   canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();fallback('context lost');});
-  if(reduced.matches){root.dataset.dragonState='fallback';setToggle('Motion reduced',true);return;}
+  if(reduced.matches){root.dataset.dragonState='fallback';setToggle('Motion reduced',true);}
   const controller=new AbortController();
   fetch('./assets/models/kioku-dragon-rig-v1.glb',{signal:controller.signal})
     .then(response=>{if(!response.ok)throw new Error('GLB fetch '+response.status);return response.arrayBuffer();})
