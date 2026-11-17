@@ -185,3 +185,16 @@ input::placeholder,textarea::placeholder{color:#AAA8BE;opacity:1}
  .home .hero-dragon canvas{display:none}
  .home .hero-dragon-fallback{opacity:.85!important}
 }
+
+/* Approved KIOKU emblem: original light SVG, without CSS recolouring. */
+.home .wordmark img{filter:none;width:clamp(140px,11vw,168px)}
+.home .hero-stage-caption img{
+ width:clamp(122px,11vw,166px);
+ height:auto;
+ max-width:100%;
+ filter:none;
+}
+@media(max-width:719px){
+ .home .wordmark img{width:132px}
+ .home .hero-stage-caption img{width:122px}
+}
