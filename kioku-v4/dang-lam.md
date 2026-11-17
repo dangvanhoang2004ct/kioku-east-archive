@@ -64,3 +64,13 @@ Chỉ sửa repository Kioku. Không ghi đè mã, quy tắc, tài sản hoặc 
 - [ ] **Chưa merge vào main/Production.** Chưa xác minh GPU WebGL thực tế trên Safari/Chromium; browser trong môi trường hiện tại không cấp WebGL context. Cần kiểm tra chuyển động với trình duyệt có WebGL trước khi phát hành, không chỉ dựa vào deploy success.
 
 - [x] Nâng chất lượng mô hình sau checkpoint: tách texture WebP có alpha trực tiếp từ bản cắt của artwork chủ thương hiệu trước đó, giữ chi tiết màu xanh/thân và đầu; upload nhị phân vào repo tại `assets/img/kioku-owner-dragon-texture.webp`, chuyển WebGL sang dùng texture này. Bản SVG truy nét đơn giản chỉ còn là tài nguyên dự phòng/đối chiếu. Không vẽ thêm hình AI.
+
+## Polish sau kiểm tra Preview 390×844 / 1440 — 17/11/2026
+- [x] Người dùng đã kiểm tra Preview trước đó: Search, maker filter, Saved, Compare, Finder, condition notes và menu mobile không gặp lỗi chặn. Ghi nhận này là kết quả user QA, không phải thử nghiệm GPU của ChatGPT.
+- [x] User phát hiện CTA Collection xuất hiện sau màn hình đầu (vị trí 966px tại 390×844). Đã thêm `hero-mobile-entry` ngay sau sân khấu, giảm chiều cao sân khấu dưới 720px xuống `clamp(310px,42svh,365px)` và bỏ nút Collection trùng trong intro mobile.
+- [x] Bổ sung nút Pause/Play thực sự liên kết WebGL; trạng thái `aria-pressed`, disabled khi WebGL không dùng được, `prefers-reduced-motion` giữ ảnh tĩnh. Giữ nguyên một rồng xanh có texture chuyển động và wordmark chung sân khấu.
+- [x] Cải thiện hoạt ảnh: tăng độ mịn lưới 88×34 → 112×44, chuyển timer sang delta time có giới hạn khung bị gián đoạn, tăng độ phân giải canvas desktop có kiểm soát và làm dịu tương tác chuột theo thời gian.
+- [ ] QA thực tế GPU trên Safari/Chromium mobile và desktop cho nút Pause/Play, giảm chuyển động, viewport 390×844 và 1440px. Static check/Cloudflare deploy không chứng minh GPU animation.
+- [ ] Ưu tiên trung hạn: bổ sung ảnh thật từng dòng figure có quyền sử dụng/nguồn; nâng Compare chỉ với tiêu chí được nhà sản xuất hoặc nguồn đáng tin xác minh.
+- [x] Nghiên cứu Blender: **khả thi** để dựng một con rồng đúng theo hình minh họa rồi rig xương, weight paint, tạo animation và xuất GLB/glTF. Đây là lộ trình tương lai, **chưa dựng mô hình Blender thực hoặc cài Blender**; không tự chuyển PNG thành model 3D đầy đủ.
+- [ ] Chỉ chuyển từ WebGL texture hiện tại sang mô hình Blender khi có mesh/rig đã dựng, kiểm tra dung lượng, chất lượng và WebGL/WebKit; giữ static fallback và không thêm thư viện trước thời điểm cần thiết.
