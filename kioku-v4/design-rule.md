@@ -47,3 +47,10 @@
 
 ## 7. Hàng rào dự án
 Tệp này chỉ nằm ở `kioku-v4/design-rule.md`. **Không copy/sync/ghi đè** sang `momo-matcha-can-tho/design-rules.md`. Repo khác nhau, brand asset khác nhau, môi trường deploy khác nhau. Dùng chung phương pháp thiết kế không đồng nghĩa dùng chung brand.
+
+## 8. Art direction hiện hành — yêu cầu 17/11/2026 (Preview đang duyệt)
+- Tham khảo tinh thần bố cục của mẫu người dùng gửi: nền **midnight/indigo gần đen**, sắc tím lavender làm nhấn, nhịp thị giác rõ, ảnh/đối tượng chính nổi bật; không sao chép logo, đồ họa, nội dung hay cấu trúc độc quyền của mẫu.
+- Header/navigation desktop dùng toàn chiều ngang trình duyệt. Home có **một sân khấu rồng 3D lớn toàn bề ngang**; phần câu chuyện, tiêu đề và liên kết Collection/Finder được đặt **dưới** sân khấu, tiếng Anh 100%.
+- Mẫu rồng trên Home là tác phẩm nguyên bản có chiều sâu 3D thực (WebGL hoặc mô hình 3D được cấp phép), chuyển động tinh tế và tương tác con trỏ khi phù hợp; phải có fallback hình tĩnh, tắt chuyển động khi người dùng bật `prefers-reduced-motion`.
+- Giữ logo, thông tin danh mục và toàn bộ công cụ collector đã có; không tạo dữ liệu hàng hóa, doanh số hay liên kết mua hàng không xác thực.
+- Dải màu của Preview (nền `#0B0D17`, chữ `#F4F2FA`, nhấn `#C5A7FB`) là phương án đang duyệt, chưa tự tuyên bố nhận diện cuối cùng cho Production.
