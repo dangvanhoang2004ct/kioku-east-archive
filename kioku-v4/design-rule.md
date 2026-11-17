@@ -61,3 +61,8 @@ Tệp này chỉ nằm ở `kioku-v4/design-rule.md`. **Không copy/sync/ghi đ�
 - Biến dạng áp dụng trong WebGL vertex shader của `features/shared/dragon-scene.js` trên mesh gốc, không phải ảnh 2D giả 3D. Cập nhật pháp tuyến tương ứng để vật liệu không bị sai ánh sáng. Giữ fallback tĩnh và reduced-motion.
 - Dùng **đúng file brand đã có** `brand/kioku-lockup-light.svg` ở header và dấu thương hiệu trong hero; không vẽ lại logo hoặc lấy logo đối thủ. Giữ hero full-width và phần giới thiệu bên dưới.
 - Thay đổi phải được kiểm chứng ở cả mobile/desktop; chỉ sửa mã nguồn KIOKU, không động tới logic collector hoặc hàng hóa.
+
+## 10. Logo rồng xanh do chủ thương hiệu cung cấp
+- Người dùng đã đưa artwork tham chiếu có rồng xanh thân dài, đầu có sừng/râu, bụng sáng phân đốt, uốn qua chữ KIOKU. **Đó là hình ảnh nhận diện cần hiển thị trên Home**, không chỉ bản mesh procedural WebGL.
+- Home giữ mô hình 3D đã duyệt làm hiệu ứng nền, nhưng logo/rồng nguyên bản từ tờ mẫu nằm trên lớp foreground. Có thể dùng bản SVG truy nét từ ảnh gốc ở `assets/img/kioku-owner-dragon-logo.svg`; bản truy nét có giảm chi tiết màu so với source, không được nhận là file vector gốc của tác giả.
+- Đảm bảo màu chữ logo navy đọc rõ trên nền giấy sáng. Không thay artwork thương hiệu bằng ảnh AI tạo mới hoặc các con rồng khác. Nếu có file vector gốc chất lượng cao, ưu tiên thay thế đúng asset này sau khi được chủ thương hiệu phê duyệt.
