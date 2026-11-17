@@ -62,3 +62,5 @@ Chỉ sửa repository Kioku. Không ghi đè mã, quy tắc, tài sản hoặc 
 - [x] PR #5 từ `feature/kioku-textured-dragon-webgl-20261117` đã tạo, kiểm tra tĩnh 11/11 bất biến về một rồng, chuyển động mesh, texture, asset build và fallback đạt yêu cầu.
 - [x] Cloudflare Pages báo Preview deploy SUCCESS cho SHA `1088b11ef9c9dab72ca7a5f61ff84fd46dc3e9ba`, URL `https://0ba23fdc.kioku-east-archive.pages.dev/`.
 - [ ] **Chưa merge vào main/Production.** Chưa xác minh GPU WebGL thực tế trên Safari/Chromium; browser trong môi trường hiện tại không cấp WebGL context. Cần kiểm tra chuyển động với trình duyệt có WebGL trước khi phát hành, không chỉ dựa vào deploy success.
+
+- [x] Nâng chất lượng mô hình sau checkpoint: tách texture WebP có alpha trực tiếp từ bản cắt của artwork chủ thương hiệu trước đó, giữ chi tiết màu xanh/thân và đầu; upload nhị phân vào repo tại `assets/img/kioku-owner-dragon-texture.webp`, chuyển WebGL sang dùng texture này. Bản SVG truy nét đơn giản chỉ còn là tài nguyên dự phòng/đối chiếu. Không vẽ thêm hình AI.
