@@ -199,33 +199,28 @@ input::placeholder,textarea::placeholder{color:#AAA8BE;opacity:1}
  .home .hero-stage-caption img{width:122px}
 }
 
-
-
-/* 17 Nov fix: let the WebGL dragon occupy the entire stage again.
-   The owner's illustrated logo lives underneath it in the introduction,
-   not in an opaque card covering the 3D canvas. */
-.home .hero-dragon{opacity:1;filter:none;pointer-events:auto}
-.home .hero-owner-art{
- position:relative;
- z-index:auto;
- transform:none;
- inset:auto;
- width:min(100%,480px);
- max-width:100%;
- display:block;
- margin:0 0 clamp(22px,3vw,34px);
- background:#f4f3ef;
- border:1px solid #d9d8d3;
- padding:clamp(12px,1.6vw,20px);
- box-shadow:none;
- overflow:hidden;
- pointer-events:none;
+/* ONE illustrated dragon, mapped directly to a flexible 3D WebGL surface.
+   The wordmark stays stationary behind it in the same stage. Both come from
+   the exact same owner artwork. Separate art card and duplicate 3D dragon gone. */
+.home .hero-dragon { opacity:1; filter:none; pointer-events:auto; }
+.home .hero-dragon-fallback,
+.home .hero-dragon-wordmark,
+.home .hero-dragon canvas {
+  position:absolute;inset:0;display:block;height:100%;object-fit:contain;
 }
-.home .hero-owner-art img{display:block;width:100%;height:auto;max-width:100%}
-@media(max-width:719px){
- .home .hero-owner-art{width:min(100%,370px);padding:10px;margin-bottom:24px}
+.home .hero-dragon-fallback {
+  width:92%;left:4%;z-index:2;opacity:1;filter:none;
 }
+.home .hero-dragon-wordmark {
+  width:92%;left:4%;z-index:0;opacity:0;filter:none;
+  transition:opacity .35s ease;
+}
+.home .hero-dragon canvas {width:100%;z-index:1;opacity:0;transition:opacity .35s ease;}
+.home .hero-dragon.is-ready canvas {opacity:1;}
+.home .hero-dragon.is-ready .hero-dragon-wordmark {opacity:1;}
+.home .hero-dragon.is-ready .hero-dragon-fallback {opacity:0;visibility:hidden;}
 @media(prefers-reduced-motion:reduce){
- /* The existing still-frame fallback must stay visible. */
- .home .hero-dragon{opacity:1}
+ .home .hero-dragon canvas{display:none;}
+ .home .hero-dragon-fallback{opacity:1!important;visibility:visible!important;}
+ .home .hero-dragon-wordmark{opacity:0!important;}
 }
