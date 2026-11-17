@@ -110,5 +110,5 @@
     ready=true;start();
   };
   art.onerror=()=>{root.dataset.dragonState='fallback';};
-  art.src='./assets/img/kioku-owner-dragon-surface.svg';
+  art.src='./assets/img/kioku-owner-dragon-texture.webp';
 })();
