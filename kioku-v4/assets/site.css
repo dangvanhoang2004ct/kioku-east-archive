@@ -259,3 +259,11 @@ input::placeholder,textarea::placeholder{color:#AAA8BE;opacity:1}
 @media(prefers-reduced-motion:reduce){
   .home .hero-motion-toggle{display:none}
 }
+
+
+/* Volumetric rigged dragon prototype: canvas is a direct-manipulation 3D viewer. */
+.home .hero-dragon canvas[data-dragon-canvas]{touch-action:pan-y;cursor:grab}
+.home .hero-dragon canvas[data-dragon-canvas]:active{cursor:grabbing}
+.home .hero-dragon canvas[data-dragon-canvas]:focus-visible{
+  outline:3px solid var(--focus);outline-offset:-5px
+}

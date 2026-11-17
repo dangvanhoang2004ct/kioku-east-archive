@@ -74,3 +74,20 @@ Chỉ sửa repository Kioku. Không ghi đè mã, quy tắc, tài sản hoặc 
 - [ ] Ưu tiên trung hạn: bổ sung ảnh thật từng dòng figure có quyền sử dụng/nguồn; nâng Compare chỉ với tiêu chí được nhà sản xuất hoặc nguồn đáng tin xác minh.
 - [x] Nghiên cứu Blender: **khả thi** để dựng một con rồng đúng theo hình minh họa rồi rig xương, weight paint, tạo animation và xuất GLB/glTF. Đây là lộ trình tương lai, **chưa dựng mô hình Blender thực hoặc cài Blender**; không tự chuyển PNG thành model 3D đầy đủ.
 - [ ] Chỉ chuyển từ WebGL texture hiện tại sang mô hình Blender khi có mesh/rig đã dựng, kiểm tra dung lượng, chất lượng và WebGL/WebKit; giữ static fallback và không thêm thư viện trước thời điểm cần thiết.
+
+## Chuyển hướng sang mô hình 3D khối / Blender — 17/11/2026
+- [x] Người dùng xác nhận PR #5 **chỉ là WebGL 2.5D**; cần rồng thật có thể xoay nhiều góc. Không tiếp tục vá mô hình 2.5D như đã hoàn thành.
+- [x] Tách nhánh `feature/kioku-rigged-glb-preview-20261117` dựa trên PR #5, giữ mã PR #5 làm bản tham chiếu hình dáng, palette và nhịp chuyển động; không ảnh hưởng main/Production.
+- [x] Tạo mô hình prototype **full-volume 3D** (không phải tấm phẳng): thân tube kín, đầu/mõm, sừng, râu, sống lưng, đuôi, chi/chân; một mesh có vertex color, 11 xương, trọng số đỉnh, hoạt ảnh idle 8 giây và định dạng GLB tại `assets/models/kioku-dragon-rig-v1.glb`. Kiểm tra glTF bằng trimesh: đọc được 9.740 đỉnh, 17.380 tam giác, animation/skin hợp lệ theo kiểm tra cấu trúc; chưa xác nhận chất lượng mỹ thuật.
+- [x] Tạo nguồn Python để tái tạo GLB, file hỗ trợ Blender `tools/blender_refine_kioku.py`, README mô hình và trình dựng WebGL đọc GLB có orbit bằng kéo chuột/phím, pause/play, reduced motion, fallback; **không** dùng 2 rồng hoặc CSS giả lập.
+- [x] Kiểm thử Chromium nội bộ không có WebGL: phát hiện và sửa lỗi `Cannot access 'paused' before initialization` ở nhánh không hỗ trợ GPU; kiểm thử lại 1440px và 390px không còn pageerror. Đây là kiểm thử fallback, không phải xác minh GPU.
+- [ ] **Chưa có Blender trong môi trường**, không cài được do hạn chế kết nối; chưa có file `.blend` được tạo bằng Blender. Mã `blender_refine_kioku.py` là tập lệnh dành cho môi trường Blender, chưa thực thi ở đây. Bản GLB là 3D procedural do ChatGPT dựng, **không phải bản sculpt cao cấp giống 100% mẫu logo**.
+- [ ] Đánh giá trực quan mô hình tại nhiều góc, chỉnh tỷ lệ đầu/mặt, sừng, râu, bụng, vảy và bone weight trong Blender rồi mới thay Production. Không báo GPU/Blender PASS khi chưa nghiệm thu.
+- [ ] Nhánh PR #6 Preview riêng; giữ nguyên PR #5 và main/Production; chỉ phát hành sau khi có kiểm tra Safari/WebKit, Chromium trên thiết bị thực và người dùng duyệt hình dáng.
+
+## Direct source refinement — 17/11/2026
+- [x] Updated `tools/generate_dragon.py` directly in GitHub: staggered volumetric side scale relief, discrete ventral plates, and a smoother head-to-tail travelling bone wave. Existing approved blue silhouette, 11-bone rig, full-width Home and KIOKU Shelf Echo brand remain unchanged.
+- [ ] Rebuild `assets/models/kioku-dragon-rig-v1.glb` from updated generator (existing GLB still contains the earlier geometry): `python3 tools/generate_dragon.py` from `kioku-v4/`.
+- [ ] Run `node scripts/validate-rig.mjs`, `npm run check`, and `npm run build` on the regenerated GLB. Review multiple orbit angles for scale/scute intersections, eye/face and skin deformation; make changes if needed.
+- [ ] Real GPU Safari/Chrome and Cloudflare Preview acceptance still required. The updated source is **not** a verified final 3D sculpt and must not ship to main until regeneration and approval.
+- [ ] Codex is release-only per owner request; do not ask it to design, retouch or generate screenshots. Build artifact regeneration required for release is separate from inventing a new dragon.
