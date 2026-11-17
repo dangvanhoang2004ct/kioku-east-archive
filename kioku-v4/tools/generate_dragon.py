@@ -9,7 +9,8 @@ Dependencies: numpy (available locally), stdlib only otherwise.
 import math, json, struct, pathlib
 import numpy as np
 
-OUT=pathlib.Path(__file__).resolve().parent/'kioku-dragon-rig-v1.glb'
+OUT=pathlib.Path(__file__).resolve().parents[1]/'assets/models/kioku-dragon-rig-v1.glb'
+OUT.parent.mkdir(parents=True,exist_ok=True)
 PI=math.pi
 TAU=2*PI
 VERT=[]; COLOR=[]; IDX=[]
