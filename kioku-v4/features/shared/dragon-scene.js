@@ -3,9 +3,10 @@
 (() => {
   const root = document.querySelector('[data-dragon-scene]');
   const canvas = root?.querySelector('[data-dragon-canvas]');
+  const motionToggle = document.querySelector('[data-dragon-motion-toggle]');
   if (!root || !canvas) return;
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-  if (reduced.matches) return;
+  // Do not start motion while reduced motion is on, including on first load.
   let gl;
   try { gl = canvas.getContext('webgl', {alpha:true, antialias:true, depth:true,
     premultipliedAlpha:false, powerPreference:'low-power'}); } catch { return; }
@@ -39,7 +40,7 @@
     'uniform sampler2D u_art;',
     'void main(){',
     '  vec4 painted=texture2D(u_art,v_uv);',
-    '  if(painted.a<0.03) discard;',
+    '  if(painted.a<0.005) discard;',
     '  gl_FragColor=vec4(painted.rgb*v_light,painted.a);',
     '}'
   ].join('\n');
@@ -54,7 +55,7 @@
   if(!vs||!fs)return;
   const program=gl.createProgram();gl.attachShader(program,vs);gl.attachShader(program,fs);
   gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))return;
-  const columns=88,rows=34,points=[],indices=[];
+  const columns=112,rows=44,points=[],indices=[];
   for(let y=0;y<=rows;y++)for(let x=0;x<=columns;x++)points.push(x/columns,1-y/rows);
   for(let y=0;y<rows;y++)for(let x=0;x<columns;x++){
     const i=y*(columns+1)+x,j=i+columns+1;indices.push(i,j,i+1,i+1,j,j+1);
@@ -75,32 +76,51 @@
   gl.uniform1i(U.art,0);gl.enable(gl.DEPTH_TEST);gl.enable(gl.BLEND);
   gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
   let ready=false,active=true,visible=true,frame=0,targetX=0,targetY=0,mouseX=0,mouseY=0;
-  const initial=performance.now();
-  function stop(){if(frame)cancelAnimationFrame(frame);frame=0;}
-  function start(){if(ready&&active&&visible&&!document.hidden&&!reduced.matches&&!frame)frame=requestAnimationFrame(draw);}
+  let paused=false,elapsed=0,lastFrameTime=0;
+  const setToggle=(label,disabled=false)=>{
+    if(!motionToggle)return;
+    motionToggle.textContent=label;
+    motionToggle.disabled=disabled;
+    motionToggle.setAttribute('aria-pressed',String(paused));
+  };
+  function stop(){if(frame)cancelAnimationFrame(frame);frame=0;lastFrameTime=0;}
+  function start(){if(ready&&active&&visible&&!document.hidden&&!reduced.matches&&!paused&&!frame)frame=requestAnimationFrame(draw);}
   function draw(now){
-    frame=0;if(!ready||!active||!visible||document.hidden||reduced.matches)return;
-    const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(devicePixelRatio||1,1.5);
+    frame=0;if(!ready||!active||!visible||document.hidden||reduced.matches||paused)return;
+    const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(devicePixelRatio||1,innerWidth<720?1.5:1.8);
     if(!w||!h)return;
     const cw=Math.round(w*dpr),ch=Math.round(h*dpr);
     if(cw!==canvas.width||ch!==canvas.height){canvas.width=cw;canvas.height=ch;gl.viewport(0,0,cw,ch);}
-    const time=(now-initial)/1000;
-    mouseX+=(targetX-mouseX)*0.045;mouseY+=(targetY-mouseY)*0.045;
+    const dt=lastFrameTime?Math.min(0.05,Math.max(0,(now-lastFrameTime)/1000)):0;
+    lastFrameTime=now;
+    elapsed+=dt;
+    const time=elapsed;
+    const easing=1-Math.exp(-5.0*dt);
+    mouseX+=(targetX-mouseX)*easing;mouseY+=(targetY-mouseY)*easing;
     gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
     gl.useProgram(program);gl.uniform1f(U.time,time);
     gl.uniform1f(U.yaw,Math.sin(time*0.18)*0.05+mouseX*0.10);
     gl.uniform1f(U.pitch,Math.sin(time*0.16)*0.028+mouseY*0.055);
     gl.uniform1f(U.aspect,w/h);
     gl.drawElements(gl.TRIANGLES,indices.length,gl.UNSIGNED_SHORT,0);
-    if(gl.getError()!==gl.NO_ERROR){active=false;root.classList.remove('is-ready');root.dataset.dragonState='fallback';return;}
-    root.classList.add('is-ready');root.dataset.dragonState='animated';start();
+    if(gl.getError()!==gl.NO_ERROR){active=false;root.classList.remove('is-ready');root.dataset.dragonState='fallback';setToggle('Motion unavailable',true);return;}
+    root.classList.add('is-ready');root.dataset.dragonState='animated';setToggle('Pause motion');start();
   }
+  motionToggle?.addEventListener('click',()=>{
+    if(!ready||!active||reduced.matches)return;
+    paused=!paused;
+    if(paused){stop();root.dataset.dragonState='paused';setToggle('Play motion');}
+    else {setToggle('Pause motion');start();}
+  });
   root.addEventListener('pointermove',e=>{const b=root.getBoundingClientRect();targetX=((e.clientX-b.left)/b.width-.5)*2;targetY=((e.clientY-b.top)/b.height-.5)*2;},{passive:true});
   root.addEventListener('pointerleave',()=>{targetX=0;targetY=0;});
   if('IntersectionObserver' in window){new IntersectionObserver(es=>{visible=es[0]?.isIntersecting??false;visible?start():stop();},{threshold:.01}).observe(root);}
   document.addEventListener('visibilitychange',()=>document.hidden?stop():start());
-  reduced.addEventListener?.('change',()=>{if(reduced.matches){stop();root.classList.remove('is-ready');}else start();});
-  canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();active=false;stop();root.classList.remove('is-ready');root.dataset.dragonState='fallback';});
+  reduced.addEventListener?.('change',()=>{
+    if(reduced.matches){stop();root.classList.remove('is-ready');root.dataset.dragonState='fallback';setToggle('Motion disabled',true);}
+    else {paused=false;setToggle(ready?'Pause motion':'Motion unavailable',!ready);start();}
+  });
+  canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();active=false;stop();root.classList.remove('is-ready');root.dataset.dragonState='fallback';setToggle('Motion unavailable',true);});
   const art=new Image();
   art.onload=()=>{
     if(!active)return;gl.bindTexture(gl.TEXTURE_2D,texture);
@@ -109,6 +129,6 @@
     if(gl.getError()!==gl.NO_ERROR)return;
     ready=true;start();
   };
-  art.onerror=()=>{root.dataset.dragonState='fallback';};
+  art.onerror=()=>{root.dataset.dragonState='fallback';setToggle('Motion unavailable',true);};
   art.src='./assets/img/kioku-owner-dragon-texture.webp';
 })();
