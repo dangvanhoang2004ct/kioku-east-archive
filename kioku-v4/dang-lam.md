@@ -57,3 +57,8 @@ Chỉ sửa repository Kioku. Không ghi đè mã, quy tắc, tài sản hoặc 
 - [ ] Phân biệt rõ WebGL textured surface / 2.5D với mô hình rồng 3D khối hoàn chỉnh/rigged: đây là lưới 3D bề mặt, không khẳng định full volume rig.
 - [ ] QA khả năng dựng WebGL thật trên GPU Safari/Chromium trước khi tuyên bố hoạt ảnh PASS. Hệ thống Chromium cục bộ có thể chạy nhưng WebGL context bị chặn; kiểm tra cú pháp, tài nguyên và Cloudflare build riêng.
 - [ ] Cloudflare Production chỉ có thể xác nhận khi đúng commit trên `main` và check deploy success; giữ Production an toàn khi Preview chưa được nghiệm thu GPU.
+
+### Checkpoint triển khai Preview — 17/11/2026
+- [x] PR #5 từ `feature/kioku-textured-dragon-webgl-20261117` đã tạo, kiểm tra tĩnh 11/11 bất biến về một rồng, chuyển động mesh, texture, asset build và fallback đạt yêu cầu.
+- [x] Cloudflare Pages báo Preview deploy SUCCESS cho SHA `1088b11ef9c9dab72ca7a5f61ff84fd46dc3e9ba`, URL `https://0ba23fdc.kioku-east-archive.pages.dev/`.
+- [ ] **Chưa merge vào main/Production.** Chưa xác minh GPU WebGL thực tế trên Safari/Chromium; browser trong môi trường hiện tại không cấp WebGL context. Cần kiểm tra chuyển động với trình duyệt có WebGL trước khi phát hành, không chỉ dựa vào deploy success.
