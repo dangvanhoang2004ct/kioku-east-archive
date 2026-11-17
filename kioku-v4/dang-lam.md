@@ -84,3 +84,10 @@ Chỉ sửa repository Kioku. Không ghi đè mã, quy tắc, tài sản hoặc 
 - [ ] **Chưa có Blender trong môi trường**, không cài được do hạn chế kết nối; chưa có file `.blend` được tạo bằng Blender. Mã `blender_refine_kioku.py` là tập lệnh dành cho môi trường Blender, chưa thực thi ở đây. Bản GLB là 3D procedural do ChatGPT dựng, **không phải bản sculpt cao cấp giống 100% mẫu logo**.
 - [ ] Đánh giá trực quan mô hình tại nhiều góc, chỉnh tỷ lệ đầu/mặt, sừng, râu, bụng, vảy và bone weight trong Blender rồi mới thay Production. Không báo GPU/Blender PASS khi chưa nghiệm thu.
 - [ ] Nhánh PR #6 Preview riêng; giữ nguyên PR #5 và main/Production; chỉ phát hành sau khi có kiểm tra Safari/WebKit, Chromium trên thiết bị thực và người dùng duyệt hình dáng.
+
+## Direct source refinement — 17/11/2026
+- [x] Updated `tools/generate_dragon.py` directly in GitHub: staggered volumetric side scale relief, discrete ventral plates, and a smoother head-to-tail travelling bone wave. Existing approved blue silhouette, 11-bone rig, full-width Home and KIOKU Shelf Echo brand remain unchanged.
+- [ ] Rebuild `assets/models/kioku-dragon-rig-v1.glb` from updated generator (existing GLB still contains the earlier geometry): `python3 tools/generate_dragon.py` from `kioku-v4/`.
+- [ ] Run `node scripts/validate-rig.mjs`, `npm run check`, and `npm run build` on the regenerated GLB. Review multiple orbit angles for scale/scute intersections, eye/face and skin deformation; make changes if needed.
+- [ ] Real GPU Safari/Chrome and Cloudflare Preview acceptance still required. The updated source is **not** a verified final 3D sculpt and must not ship to main until regeneration and approval.
+- [ ] Codex is release-only per owner request; do not ask it to design, retouch or generate screenshots. Build artifact regeneration required for release is separate from inventing a new dragon.
