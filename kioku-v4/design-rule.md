@@ -78,3 +78,10 @@ Tệp này chỉ nằm ở `kioku-v4/design-rule.md`. **Không copy/sync/ghi đ�
 - Animated dragon must have functional Pause/Play control, button state/accessibility labels and static fallback when WebGL is unsupported. Respect `prefers-reduced-motion` even when the setting changes at runtime.
 - Smooth motion via time-based interpolation, conservative grid resolution/DPR and gentle body-wave amplitude. Do not replace the approved blue dragon with a second decorative dragon.
 - Blender direction is future **full volumetric** modeling/rigging from the original artwork, distinct from the current 2.5D textured WebGL surface. Preserve original face, horns/whiskers, belly plates and silhouette; use bone weights and export compact `.glb` with one idle animation only after visual approval. Never claim an image alone is a full rigged 3D model.
+
+## 13. Yêu cầu mới: rồng KIOKU phải có thể xoay toàn bộ không gian 3D
+- PR #5 là chuẩn tham chiếu **chuyển động và hình dáng ban đầu**, không phải mô hình 3D đầy đủ. Không gọi texture surface của PR #5 là full 3D.
+- Đầu ra mục tiêu: **một mô hình 3D khối có armature**, trong đó thân, đầu, sừng, râu, chân và đuôi có hình học 3D; có thể xoay quanh mô hình để thấy cạnh và lưng.
+- Bản prototype GLB procedural chỉ là bước kỹ thuật; yêu cầu mỹ thuật vẫn phải giữ linh vật rồng xanh gốc, chất liệu xanh navy / băng, tỉ lệ đầu, vảy và bụng có phân đốt. Mô hình thô không được mặc định coi là final.
+- Dùng Blender để sculpt/refine và kiểm tra weight-paint, xuất GLB khi có Blender thực tế. Giữ 1 rồng duy nhất, pause/play và `prefers-reduced-motion`, fallback minh họa gốc khi GPU lỗi, UX Collection trên mobile.
+- Chỉ đưa Production sau khi kiểm tra thực tế Safari/Chromium của mô hình đúng được duyệt; không merge chỉ dựa vào compile / Preview deploy.
