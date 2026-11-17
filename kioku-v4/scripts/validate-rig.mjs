@@ -1,6 +1,6 @@
 import {readFileSync} from 'node:fs';
 import {resolve,join} from 'node:path';
-const file=join(resolve(import.meta.dirname,'..'),'assets','models','kioku-river-guardian-v4-review.glb');
+const file=join(resolve(import.meta.dirname,'..'),'assets','models','kioku-river-guardian-v5-backfix-review.glb');
 const b=readFileSync(file);
 if(b.toString('utf8',0,4)!=='glTF'||b.readUInt32LE(4)!==2||b.readUInt32LE(8)!==b.length)
  throw Error('Invalid River Guardian GLB header');
@@ -10,6 +10,7 @@ const j=JSON.parse(b.subarray(20,20+jsonLength).toString('utf8'));
 if(j.skins?.length!==1||j.skins[0].joints.length!==10)
  throw Error('River Guardian needs the 10-bone Blender rig');
 const anim=j.animations?.[0];
+if(!anim?.name?.includes('V5'))throw Error('Expected V5 flexible-spine animation');
 if(!anim||anim.channels.length!==9)throw Error('Owner 6-second 9-track animation missing');
 if(j.meshes?.length!==1||j.meshes[0].primitives?.length!==6||j.materials?.length!==6)
  throw Error('Expected one owner dragon mesh split across six materials');
@@ -56,4 +57,4 @@ for(const c of anim.channels){
 const time=j.accessors[anim.samplers[0].input];
 if(!Array.isArray(time.min)||!Array.isArray(time.max))
  throw Error('Blender glTF compatibility: accessor min/max must be arrays');
-console.log('River Guardian GLB PASS:',vertices,'vertices',triangles,'triangles; 10 bones; 6 materials; 9 rotation tracks; 6 sec.');
+console.log('River Guardian V5 GLB PASS:',vertices,'vertices',triangles,'triangles; 10 bones; 6 materials; 9 rotation tracks; 6 sec.');

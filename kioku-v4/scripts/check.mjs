@@ -9,7 +9,7 @@ if(/# DESIGN RULES [—-] MOMO MATCHA|momo-logo-(green|cream)|Sapo FnB PRO|Match
 if(existsSync(join(root,'design-rule.md'))&&existsSync(join(root,'design-rules.md'))&&!pointer.includes('](design-rule.md)'))throw Error('Kioku design-rules.md must redirect to canonical design-rule.md');
 const pages=['index.html','collection.html','finder.html','work.html','condition-guide.html','journal.html','about.html'];
 const scripts=['features/shared/site.js','features/shared/dragon-scene.js','features/shared/dragon-glb-scene.js','features/catalog/records.js','features/storefront/favorites.js','features/storefront/compare.js','features/storefront/catalog.js','features/storefront/detail.js','features/discovery/finder.js','features/condition/notes.js'];
-const required=[...pages,...scripts,'assets/models/kioku-river-guardian-v4-review.glb','assets/site.css','assets/img/kioku-dragon-flow.svg','assets/img/kioku-dragon-still.svg','assets/img/kioku-owner-dragon-logo.svg','assets/img/kioku-owner-dragon-surface.svg','assets/img/kioku-owner-dragon-texture.webp','assets/img/kioku-owner-wordmark-only.svg','assets/img/kioku-owner-logo-stage-still.svg','brand/kioku-favicon.svg','brand/kioku-lockup.svg','brand/kioku-lockup-light.svg','brand/kioku-mark.svg','features/inventory/verified-items.json'];
+const required=[...pages,...scripts,'assets/models/kioku-river-guardian-v5-backfix-review.glb','assets/site.css','assets/img/kioku-dragon-flow.svg','assets/img/kioku-dragon-still.svg','assets/img/kioku-owner-dragon-logo.svg','assets/img/kioku-owner-dragon-surface.svg','assets/img/kioku-owner-dragon-texture.webp','assets/img/kioku-owner-wordmark-only.svg','assets/img/kioku-owner-logo-stage-still.svg','brand/kioku-favicon.svg','brand/kioku-lockup.svg','brand/kioku-lockup-light.svg','brand/kioku-mark.svg','features/inventory/verified-items.json'];
 for(const f of required)if(!existsSync(join(root,f)))throw Error('Missing project file: '+f);
 for(const page of pages){const html=content(page);if(!html.includes('<html lang="en">'))throw Error('Not English: '+page);if(!html.includes('id="main"'))throw Error('Missing main landmark: '+page);if(!html.includes('data-search-dialog'))throw Error('Missing site-wide search: '+page);const ids=new Set([...html.matchAll(/\bid="([^"]+)"/g)].map(x=>x[1]));for(const [,id] of html.matchAll(/\bhref="#([^" ]+)"/g))if(!ids.has(id))throw Error('Broken anchor: '+page+'#'+id);
 const links=[...html.matchAll(/(?:href|src)="([^"#?]+)(?:\?[^"#]*)?(?:#[^"]*)?"/g)].map(x=>x[1]).filter(x=>!x.startsWith('https:')&&!x.startsWith('mailto:')&&!x.startsWith('data:'));
@@ -49,15 +49,15 @@ if(!home.includes('features/shared/dragon-glb-scene.js')||home.includes('<script
 if(!home.includes('tabindex="0"')||!home.includes('arrow keys to rotate'))
   throw Error('Keyboard-accessible model orbit missing');
 const rigScene=content('features/shared/dragon-glb-scene.js');
-for(const marker of ['kioku-river-guardian-v4-review.glb','u_bones[10]','parseGLB(arrayBuffer)','uploadBones(t)',
+for(const marker of ['kioku-river-guardian-v5-backfix-review.glb','u_bones[10]','parseGLB(arrayBuffer)','uploadBones(t)',
  'pointermove','keydown','Motion unavailable','prefers-reduced-motion',
  'model.joints','six Blender material parts']) {
  if(!rigScene.includes(marker))throw Error('River Guardian renderer feature missing: '+marker);
 }
 if(rigScene.includes('u_bones[11]')||rigScene.includes('kioku-dragon-rig-v1.glb'))
  throw Error('Old 11-bone rig renderer is not compatible with owner-provided Blender file');
-if(!content('scripts/build.mjs').includes('assets/models/kioku-river-guardian-v4-review.glb'))
- throw Error('River Guardian v2 GLB omitted from Cloudflare build');
+if(!content('scripts/build.mjs').includes('assets/models/kioku-river-guardian-v5-backfix-review.glb'))
+ throw Error('River Guardian V5 GLB omitted from Cloudflare build');
 
 const index=content('index.html'),catalog=content('collection.html'),finder=content('finder.html'),detail=content('work.html'),condition=content('condition-guide.html');
 for(const maker of ['Bandai Spirits','MegaHouse'])if(!index.includes(maker))throw Error('Maker discovery missing on Home: '+maker);
