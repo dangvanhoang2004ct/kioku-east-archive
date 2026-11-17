@@ -10,7 +10,7 @@
 
 - Removed duplicate V3 add-on whiskers and horns, keeping the base anatomy, then replaced them with layered curved, skinned cheek whiskers, brow ridges, and KIOKU-style navy/teal sweeping hair fins.
 - Reduced cartoonish bulging eyes, converted eye color to pale jade; updated horn color from bronze to navy and toned down repeating dorsal spikes.
-- Added sparse skinned flank-scale details and a slim trailing tail flourish, with eight material IDs **unchanged at six groups** (six material slots total).
+- Added sparse skinned flank-scale details and a slim trailing tail flourish, while preserving the same **six material groups** (no added material slots).
 - Existing head/neck/tail/limbs preserved, with limited snout slimming and restrained 3D detail. No separate second dragon.
 - The source mesh and 10-bone skin remain; every appended detail has `JOINTS_0` and `WEIGHTS_0`, so it follows existing body animation.
 - Gently increased visible joint articulation through the middle body while keeping the same six-second clip with exact first/last quaternion closure.
