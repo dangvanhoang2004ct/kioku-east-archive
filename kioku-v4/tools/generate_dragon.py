@@ -156,6 +156,29 @@ for s in [.69,.88]:
    tube(lambda t,a=palm,b=toe,c=tip:mix(mix(a,b,min(1,t*1.4)),c,max(0,(t-.6)/.4)),
        lambda t:.034*(1-t)+.003,12,6,lambda t,a:'claw',True)
 
+# Low-relief, staggered scale plates on the sides of the actual 3D skin.
+# Each plate has thickness; this is not a UV decal or a second dragon.
+for row in range(12,181,4):
+ s=row/192; p=curve(s); d=tangent(s); up,right=ring_axes(d)
+ r=body_radius(s)
+ for side in (-1,1):
+  offset=(.01 if side>0 else -.01)
+  q=p+right*(side*r*.92)+up*(r*.17)
+  fin(q-d*.063-up*.014,
+      q+d*.008+up*(.058+offset),
+      q+d*.085-up*.034,
+      'body3' if row%3 else 'body2',.012)
+
+# Individual ventral scutes make the bright belly read as sculpted armour,
+# with tiny gaps to prevent a single featureless smooth light stripe.
+for row in range(12,184,6):
+ s=row/192; p=curve(s); d=tangent(s); up,right=ring_axes(d)
+ r=body_radius(s); q=p-up*(r*.955)
+ fin(q-d*.061-right*(r*.27),
+     q-d*.061+right*(r*.27),
+     q+d*.07,
+     'belly' if row%4 else 'belly2',.011)
+
 P=np.asarray(VERT,dtype=np.float32)
 F=np.asarray(IDX,dtype=np.uint16).reshape(-1,3)
 COL=np.asarray(COLOR,dtype=np.float32)
@@ -192,10 +215,10 @@ DURATION=8.0
 T=np.linspace(0,DURATION,33,dtype=np.float32)
 ROT=[]
 for i in range(BONE_COUNT):
- amp=.006+i*.0023
+ amp=.005+i*.0033
  arr=[]
  for tt in T:
-  angle=TAU*float(tt)/DURATION-.48*i
+  angle=TAU*float(tt)/DURATION-.42*i
   yaw=.35*amp*math.sin(angle+1.2)
   turn=amp*math.sin(angle)
   arr.append(quat_z_y(turn,yaw))
@@ -252,7 +275,7 @@ GLTF={
  'skins':[{'name':'KIOKU_Spine_11_Bones','inverseBindMatrices':acc_ibm,'joints':list(range(1,BONE_COUNT+1)),'skeleton':1}],
  'animations':[{'name':'Idle_8s_Subtle_Undulation','samplers':samplers,'channels':channels}],
  'accessors':ACCESS,'bufferViews':VIEWS,'buffers':[{'byteLength':len(BIN)}],
- 'extras':{'prototype':True,'designSource':'KIOKU owner supplied blue dragon logo','limitations':'Procedural approximation; not hand-sculpted in Blender'}
+ 'extras':{'prototype':True,'designSource':'KIOKU owner supplied blue dragon logo','revision':'sculpted side scales, ventral scutes, softened traveling wave','limitations':'Procedural approximation; not hand-sculpted in Blender'}
 }
 JS=json.dumps(GLTF,separators=(',',':')).encode('utf8');JS+=b' '*((-len(JS))%4)
 BIN+=b'\x00'*((-len(BIN))%4)
