@@ -200,28 +200,32 @@ input::placeholder,textarea::placeholder{color:#AAA8BE;opacity:1}
 }
 
 
-/* Owner's KIOKU dragon artwork, traced from the reference sheet and layered
-   over the existing real WebGL scene. Paper inset preserves the navy wordmark. */
-.home .hero-stage{display:block}
-.home .hero-dragon{opacity:.35;filter:saturate(.85);pointer-events:auto}
+
+/* 17 Nov fix: let the WebGL dragon occupy the entire stage again.
+   The owner's illustrated logo lives underneath it in the introduction,
+   not in an opaque card covering the 3D canvas. */
+.home .hero-dragon{opacity:1;filter:none;pointer-events:auto}
 .home .hero-owner-art{
-  position:absolute;z-index:3;left:50%;top:51%;
-  transform:translate(-50%,-50%);margin:0;
-  width:min(1100px,calc(100% - 128px));max-width:calc(100% - 32px);
-  background:#f4f3ef;border:1px solid #dad8d1;
-  padding:clamp(12px,2.1vw,30px);
-  box-shadow:0 30px 95px #05050c85;
-  overflow:hidden;pointer-events:none;
+ position:relative;
+ z-index:auto;
+ transform:none;
+ inset:auto;
+ width:min(100%,480px);
+ max-width:100%;
+ display:block;
+ margin:0 0 clamp(22px,3vw,34px);
+ background:#f4f3ef;
+ border:1px solid #d9d8d3;
+ padding:clamp(12px,1.6vw,20px);
+ box-shadow:none;
+ overflow:hidden;
+ pointer-events:none;
 }
 .home .hero-owner-art img{display:block;width:100%;height:auto;max-width:100%}
-.home .hero-scroll-cue{z-index:5}
-@media(max-width:920px){
-  .home .hero-owner-art{width:calc(100% - 64px)}
-}
 @media(max-width:719px){
-  .home .hero-owner-art{width:calc(100% - 28px);padding:12px;top:49%}
-  .home .hero-dragon{opacity:.28}
+ .home .hero-owner-art{width:min(100%,370px);padding:10px;margin-bottom:24px}
 }
 @media(prefers-reduced-motion:reduce){
-  .home .hero-dragon{opacity:0}
+ /* The existing still-frame fallback must stay visible. */
+ .home .hero-dragon{opacity:1}
 }
