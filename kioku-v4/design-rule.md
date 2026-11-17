@@ -66,3 +66,9 @@ Tệp này chỉ nằm ở `kioku-v4/design-rule.md`. **Không copy/sync/ghi đ�
 - Người dùng đã đưa artwork tham chiếu có rồng xanh thân dài, đầu có sừng/râu, bụng sáng phân đốt, uốn qua chữ KIOKU. **Đó là hình ảnh nhận diện cần hiển thị trên Home**, không chỉ bản mesh procedural WebGL.
 - Home giữ mô hình 3D đã duyệt làm hiệu ứng nền, nhưng logo/rồng nguyên bản từ tờ mẫu nằm trên lớp foreground. Có thể dùng bản SVG truy nét từ ảnh gốc ở `assets/img/kioku-owner-dragon-logo.svg`; bản truy nét có giảm chi tiết màu so với source, không được nhận là file vector gốc của tác giả.
 - Đảm bảo màu chữ logo navy đọc rõ trên nền giấy sáng. Không thay artwork thương hiệu bằng ảnh AI tạo mới hoặc các con rồng khác. Nếu có file vector gốc chất lượng cao, ưu tiên thay thế đúng asset này sau khi được chủ thương hiệu phê duyệt.
+
+## 11. Đính chính ưu tiên cao — hình rồng phải là kết cấu của mô hình chuyển động
+- Mô hình **một rồng duy nhất**: rồng xanh trong mẫu của chủ thương hiệu phải tham gia chuyển động 3D; **không** tách SVG/logo tĩnh thành một rồng và dựng thêm rồng 3D khác đằng sau.
+- Hình vẽ nguồn là texture của một lưới WebGL chuyển động theo sóng thân–đuôi (đầu gần ổn định). Chữ KIOKU có thể đứng yên trong cùng sân khấu, miễn là không tạo hai con rồng.
+- Giữ nhận diện hình dáng đầu, sừng/râu, lớp bụng sáng, phối màu xanh; không tự tạo lại rồng bằng ảnh sinh AI. Không phóng đại WebGL textured surface thành rigged mesh 3D hoàn chỉnh.
+- Hoạt ảnh phải có `prefers-reduced-motion` và fallback tĩnh khi GPU/WebGL lỗi. Không thể coi Cloudflare build success là bằng chứng hoạt ảnh render thành công.
