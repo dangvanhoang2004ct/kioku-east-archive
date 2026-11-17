@@ -262,7 +262,8 @@ void main() {
     const x=[Math.sin(pitch/2),0,0,Math.cos(pitch/2)];
     gl.uniformMatrix4fv(uniforms.orbit,false,multiply(transform(x,[0,0,0]),transform(y,[0,0,0])));
     const mobile=width<720;
-    gl.uniform4f(uniforms.frame,2/(mobile?10.7:11.7),mobile?.66:.60,-.38,.54);
+    // V6 Longform: wider view preserves the extended tail and slender head on mobile and desktop.
+    gl.uniform4f(uniforms.frame,2/(mobile?16.5:16.0),mobile?.66:.60,-1.94,.60);
     for(const part of draws) {
       model.attrs.forEach(([,key,size,type],i)=>{
         gl.bindBuffer(gl.ARRAY_BUFFER,part.vbos[i]);
@@ -315,7 +316,7 @@ void main() {
   });
   canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();fallback('WebGL context lost');});
   if(reduced.matches){root.dataset.dragonState='fallback';setToggle('Motion reduced',true);}
-  fetch('./assets/models/kioku-river-guardian-v5-backfix-review.glb')
+  fetch('./assets/models/kioku-river-guardian-v6-longform.glb')
     .then(r=>{if(!r.ok)throw new Error('Model HTTP '+r.status);return r.arrayBuffer();})
     .then(buffer=>{
       const data=parseGLB(buffer);

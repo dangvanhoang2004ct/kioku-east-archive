@@ -118,3 +118,11 @@ Chỉ sửa repository Kioku. Không ghi đè mã, quy tắc, tài sản hoặc 
 - [x] Chuyển `dragon-glb-scene.js`, `scripts/build.mjs`, `scripts/check.mjs`, `scripts/validate-rig.mjs` sang `assets/models/kioku-river-guardian-v5-backfix-review.glb`. V5 được tái tạo từ GLB V4 cùng thuật toán backfix Python, sai khác hình học tối đa ~1,2e-7 đơn vị và hoạt ảnh quaternion trùng khi đối chiếu offline; khác biệt nhỏ ở pháp tuyến do sai số tính toán số thực.
 - [ ] Cloudflare Preview: chờ kết quả build/check của commit nhánh này.
 - [ ] Chưa nghiệm thu GPU Safari/Chromium, Blender import, đa góc, pause/reduced-motion; KHÔNG MERGE PRODUCTION.
+
+
+## River Guardian V6 Longform — Preview-only checkpoint (18/11/2026)
+- [x] Nhánh V6 Preview tách riêng từ V5 PR #9, không sửa `main`/Production. Trải dài xương thân, thu nhỏ thân giữa, chỉnh mõm, mắt, sừng và râu. Nguồn là GLB V5 có sẵn, không thay bằng rồng mới.
+- [x] GLB V6 mới: 15.718 vertices, 26.384 triangles, 10 bones, 6 materials/primitives, 9 rotation tracks, 6s loop. Dựng từ đúng V5 blob của PR #9 với thuật toán deterministic V6 Longform. Bản dựng repo có thể sai khác vài byte metadata và số làm tròn so với GLB compact trong gói review, nhưng cùng mô hình/rig/animation.
+- [x] Web renderer, build/check/validator dùng `kioku-river-guardian-v6-longform.glb`; khung nhìn x được giãn và canh giữa -1.94 để không cắt đuôi trên mobile.
+- [ ] Cần nghiệm thu GPU Safari/Chromium, mobile 390px, desktop 1440px, Pause/Play, orbit, reduced-motion và hình dáng so với artwork trước khi merge. Cloudflare deploy success không phải GPU QA.
+- [ ] Vẫn chưa chỉnh file `.blend` gốc trên máy Mac. Không merge main/Production tự động.
