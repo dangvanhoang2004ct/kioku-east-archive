@@ -35,3 +35,9 @@ Chỉ sửa repository Kioku. Không ghi đè mã, quy tắc, tài sản hoặc 
 - [x] PR #3 commit `f488ca1028d355b2d741f452b11ab8ef5b21da53`: kiểm tra tĩnh tính nhất quán 10/10 PASS, Cloudflare Pages check báo Preview deploy success tại `https://a9bceeda.kioku-east-archive.pages.dev/`. Hai PR #2 (tài liệu) và #3 (giao diện) đã chuyển sang Ready for review; **chưa merge**.
 - [ ] Chưa thực hiện QA trình duyệt Safari/WebKit/Chromium thực tế cho commit mới; phải kiểm tra các thao tác ảnh 3D/fallback và URL Production khi phát hành.
 - [ ] Khi phát hành: merge PR #2 và PR #3 theo thứ tự an toàn, xác nhận Cloudflare Pages Production nhận đúng commit, không đụng Momo/RoleFit.
+
+## Artwork của chủ dự án — 17/11/2026
+- [x] Người dùng gửi sheet logo KIOKU với rồng xanh quấn xuyên chữ và xác nhận đây là hình rồng phải xuất hiện trực tiếp trên website, **không chỉ mesh 3D**.
+- [x] Đã tạo asset SVG vector hóa từ đường nét của ảnh gốc (mẫu logo trung tâm trong sheet): `assets/img/kioku-owner-dragon-logo.svg`, thêm vào trang Home và quy trình build trên PR #3. Đây là bản truy nét đơn giản hóa, không phải bản PNG gốc đầy đủ gradient.
+- [x] Tầng WebGL 3D vẫn giữ và chuyển động phía sau; logo/rồng minh họa nằm phía trước trên nền giấy sáng để giữ tương phản chữ navy, trang vẫn theo nhận diện midnight/lavender.
+- [ ] Xác minh Cloudflare Preview/Production và thiết bị thật sau merge; không nhận rằng asset mới là mô hình 3D có khớp hình minh họa 1:1.
