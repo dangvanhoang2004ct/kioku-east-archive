@@ -53,4 +53,11 @@ Tệp này chỉ nằm ở `kioku-v4/design-rule.md`. **Không copy/sync/ghi đ�
 - Header/navigation desktop dùng toàn chiều ngang trình duyệt. Home có **một sân khấu rồng 3D lớn toàn bề ngang**; phần câu chuyện, tiêu đề và liên kết Collection/Finder được đặt **dưới** sân khấu, tiếng Anh 100%.
 - Mẫu rồng trên Home là tác phẩm nguyên bản có chiều sâu 3D thực (WebGL hoặc mô hình 3D được cấp phép), chuyển động tinh tế và tương tác con trỏ khi phù hợp; phải có fallback hình tĩnh, tắt chuyển động khi người dùng bật `prefers-reduced-motion`.
 - Giữ logo, thông tin danh mục và toàn bộ công cụ collector đã có; không tạo dữ liệu hàng hóa, doanh số hay liên kết mua hàng không xác thực.
-- Dải màu của Preview (nền `#0B0D17`, chữ `#F4F2FA`, nhấn `#C5A7FB`) là phương án đang duyệt, chưa tự tuyên bố nhận diện cuối cùng cho Production.
+- Dải màu đã được người dùng chấp nhận về hướng thiết kế (nền `#0B0D17`, chữ `#F4F2FA`, nhấn `#C5A7FB`), nhưng chỉ phát hành Production sau khi kiểm chứng bản sửa cuối cùng.
+
+## 9. Quyết định đã duyệt về linh vật và logo — 17/11/2026
+- **Giữ nguyên hình dáng đã duyệt của rồng KIOKU**: không thay model, silhouette, màu vật liệu, sừng/mặt/đuôi, bố cục hoặc nhịp chuyển động tổng thể chỉ vì stylistic preference.
+- Tinh chỉnh có chủ đích: **thân rồng uốn lượn thêm một chút**, là chuyển động sóng truyền dọc sống lưng và trễ pha; vùng đầu gần như ổn định, biên độ tăng dần về đuôi; giữ hoạt ảnh nhã, không quẫy giật hoặc đuôi lắc quá mạnh.
+- Biến dạng áp dụng trong WebGL vertex shader của `features/shared/dragon-scene.js` trên mesh gốc, không phải ảnh 2D giả 3D. Cập nhật pháp tuyến tương ứng để vật liệu không bị sai ánh sáng. Giữ fallback tĩnh và reduced-motion.
+- Dùng **đúng file brand đã có** `brand/kioku-lockup-light.svg` ở header và dấu thương hiệu trong hero; không vẽ lại logo hoặc lấy logo đối thủ. Giữ hero full-width và phần giới thiệu bên dưới.
+- Thay đổi phải được kiểm chứng ở cả mobile/desktop; chỉ sửa mã nguồn KIOKU, không động tới logic collector hoặc hàng hóa.
