@@ -22,10 +22,14 @@ const css=content('assets/site.css');
 if(!css.includes('kioku-dragon-flow.svg')||!css.includes('kioku-dragon-still.svg'))throw Error('Dragon motion or reduced-motion fallback not wired into Home');
 const home=content('index.html');if(!home.includes('data-dragon-scene')||!home.includes('hero-introduction'))throw Error('KIOKU Home immersive hero unavailable');
 if(!home.includes('kioku-owner-dragon-logo.svg')||!home.includes('hero-owner-art'))throw Error('Owner supplied dragon art must appear on the Home hero');
+if(home.indexOf('class="hero-owner-art"')<home.indexOf('class="hero-introduction shell"'))throw Error('Brand art must not cover the WebGL stage');
+if(css.includes('.home .hero-dragon{opacity:.35')||css.includes('.home .hero-dragon{opacity:.28'))throw Error('WebGL dragon dimmed by obsolete overlay styles');
+if(!css.includes('.home .hero-dragon{opacity:1;filter:none'))throw Error('WebGL hero visibility restoration missing');
 const artwork=content('assets/img/kioku-owner-dragon-logo.svg');
 if(!artwork.includes('viewBox="0 0 680 266"')||!artwork.includes('KIOKU with the owner supplied blue dragon'))throw Error('Original KIOKU artwork missing or replaced');
 if(!home.includes('kioku-lockup-light.svg'))throw Error('Approved KIOKU logo missing from Home');
 const dragon=content('features/shared/dragon-scene.js');
+if(!dragon.includes('if(gl.getError()!==gl.NO_ERROR)')||!dragon.includes("root.classList.add('is-ready');\n    frame=requestAnimationFrame(draw);"))throw Error('WebGL must only be shown after successful render');
 for(const marker of ['float envelope=tail*tail','float phase=u_time*0.90-tail*7.6','deformedNormal','prefers-reduced-motion']){
  if(!dragon.includes(marker))throw Error('Dragon body motion or accessibility regression: '+marker);
 }
