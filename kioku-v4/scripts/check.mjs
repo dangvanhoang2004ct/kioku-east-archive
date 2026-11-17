@@ -8,8 +8,8 @@ if(existsSync(join(root,'design-rule.md'))&&existsSync(join(root,'design-rules.m
 if(/# DESIGN RULES [—-] MOMO MATCHA|momo-logo-(green|cream)|Sapo FnB PRO|Matcha Latte/i.test(rules))throw Error('Kioku rulebook appears overwritten by Momo design rules');
 if(existsSync(join(root,'design-rule.md'))&&existsSync(join(root,'design-rules.md'))&&!pointer.includes('](design-rule.md)'))throw Error('Kioku design-rules.md must redirect to canonical design-rule.md');
 const pages=['index.html','collection.html','finder.html','work.html','condition-guide.html','journal.html','about.html'];
-const scripts=['features/shared/site.js','features/catalog/records.js','features/storefront/favorites.js','features/storefront/compare.js','features/storefront/catalog.js','features/storefront/detail.js','features/discovery/finder.js','features/condition/notes.js'];
-const required=[...pages,...scripts,'assets/site.css','brand/kioku-favicon.svg','brand/kioku-lockup.svg','brand/kioku-mark.svg','features/inventory/verified-items.json'];
+const scripts=['features/shared/site.js','features/shared/dragon-scene.js','features/catalog/records.js','features/storefront/favorites.js','features/storefront/compare.js','features/storefront/catalog.js','features/storefront/detail.js','features/discovery/finder.js','features/condition/notes.js'];
+const required=[...pages,...scripts,'assets/site.css','assets/img/kioku-dragon-flow.svg','assets/img/kioku-dragon-still.svg','assets/img/kioku-owner-dragon-logo.svg','brand/kioku-favicon.svg','brand/kioku-lockup.svg','brand/kioku-lockup-light.svg','brand/kioku-mark.svg','features/inventory/verified-items.json'];
 for(const f of required)if(!existsSync(join(root,f)))throw Error('Missing project file: '+f);
 for(const page of pages){const html=content(page);if(!html.includes('<html lang="en">'))throw Error('Not English: '+page);if(!html.includes('id="main"'))throw Error('Missing main landmark: '+page);if(!html.includes('data-search-dialog'))throw Error('Missing site-wide search: '+page);const ids=new Set([...html.matchAll(/\bid="([^"]+)"/g)].map(x=>x[1]));for(const [,id] of html.matchAll(/\bhref="#([^" ]+)"/g))if(!ids.has(id))throw Error('Broken anchor: '+page+'#'+id);
 const links=[...html.matchAll(/(?:href|src)="([^"#?]+)(?:\?[^"#]*)?(?:#[^"]*)?"/g)].map(x=>x[1]).filter(x=>!x.startsWith('https:')&&!x.startsWith('mailto:')&&!x.startsWith('data:'));
@@ -18,6 +18,18 @@ if(/momo-matcha|sapo fnb|matcha latte/i.test(html))throw Error('Project design c
 }
 for(const f of scripts)execFileSync(process.execPath,['--check',join(root,f)]);
 execFileSync(process.execPath,[join(root,'scripts/validate-inventory.mjs')]);
+const css=content('assets/site.css');
+if(!css.includes('kioku-dragon-flow.svg')||!css.includes('kioku-dragon-still.svg'))throw Error('Dragon motion or reduced-motion fallback not wired into Home');
+const home=content('index.html');if(!home.includes('data-dragon-scene')||!home.includes('hero-introduction'))throw Error('KIOKU Home immersive hero unavailable');
+if(!home.includes('kioku-owner-dragon-logo.svg')||!home.includes('hero-owner-art'))throw Error('Owner supplied dragon art must appear on the Home hero');
+const artwork=content('assets/img/kioku-owner-dragon-logo.svg');
+if(!artwork.includes('viewBox="0 0 680 266"')||!artwork.includes('KIOKU with the owner supplied blue dragon'))throw Error('Original KIOKU artwork missing or replaced');
+if(!home.includes('kioku-lockup-light.svg'))throw Error('Approved KIOKU logo missing from Home');
+const dragon=content('features/shared/dragon-scene.js');
+for(const marker of ['float envelope=tail*tail','float phase=u_time*0.90-tail*7.6','deformedNormal','prefers-reduced-motion']){
+ if(!dragon.includes(marker))throw Error('Dragon body motion or accessibility regression: '+marker);
+}
+
 const index=content('index.html'),catalog=content('collection.html'),finder=content('finder.html'),detail=content('work.html'),condition=content('condition-guide.html');
 for(const maker of ['Bandai Spirits','MegaHouse'])if(!index.includes(maker))throw Error('Maker discovery missing on Home: '+maker);
 for(const prop of ['data-grid','data-search','data-maker','data-compare-dialog','data-share-search'])if(!catalog.includes(prop))throw Error('Catalog feature missing: '+prop);
