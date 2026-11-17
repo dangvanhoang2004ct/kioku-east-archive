@@ -4,7 +4,7 @@ const base=resolve(import.meta.dirname,'..'),out=join(base,'dist');
 rmSync(out,{recursive:true,force:true});mkdirSync(out,{recursive:true});
 const pages=['index.html','collection.html','work.html','condition-guide.html','journal.html','about.html','finder.html','_headers'];
 for(const file of pages)cpSync(join(base,file),join(out,file));
-for(const f of ['assets/site.css','brand/kioku-favicon.svg','brand/kioku-lockup.svg','brand/kioku-mark.svg']){
+for(const f of ['assets/site.css','brand/kioku-favicon.svg','brand/kioku-lockup.svg','brand/kioku-lockup-light.svg','brand/kioku-mark.svg']){
  mkdirSync(join(out,f.split('/').slice(0,-1).join('/')),{recursive:true});cpSync(join(base,f),join(out,f));
 }
 for(const asset of ['assets/img/reference-plate.svg','assets/img/kioku-dragon-flow.svg','assets/img/kioku-dragon-still.svg']){
