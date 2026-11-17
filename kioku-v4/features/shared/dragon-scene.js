@@ -217,6 +217,14 @@
     gl.uniform1f(uniforms.pitch,Math.sin(time*.17)*.08+mouseY*.16);
     gl.uniform1f(uniforms.aspect,canvas.clientWidth/Math.max(1,canvas.clientHeight));
     gl.drawElements(gl.TRIANGLES,I.length,gl.UNSIGNED_SHORT,0);
+    // Reveal the 3D canvas only after a successful render. Otherwise keep the still.
+    if(gl.getError()!==gl.NO_ERROR){
+      active=false;
+      frame=0;
+      root.classList.remove('is-ready');
+      return;
+    }
+    root.classList.add('is-ready');
     frame=requestAnimationFrame(draw);
   }
   function resizeIfNeeded(){
@@ -234,9 +242,8 @@
   const observer=new IntersectionObserver(entries=>{visible=entries[0]?.isIntersecting||false;visible?startDrawing():stopDrawing();},{threshold:.01});
   observer.observe(root);
   document.addEventListener('visibilitychange',()=>{document.hidden?stopDrawing():startDrawing();});
-  reducedMotion.addEventListener('change',()=>{if(reducedMotion.matches){stopDrawing();root.classList.remove('is-ready');}else{root.classList.add('is-ready');startDrawing();}});
+  reducedMotion.addEventListener('change',()=>{if(reducedMotion.matches){stopDrawing();root.classList.remove('is-ready');}else{startDrawing();}});
   canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();active=false;stopDrawing();root.classList.remove('is-ready');});
   resize();
-  root.classList.add('is-ready');
   startDrawing();
 })();
