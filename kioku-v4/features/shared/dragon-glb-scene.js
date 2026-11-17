@@ -9,11 +9,12 @@
   const toggle = document.querySelector('[data-dragon-motion-toggle]');
   if (!root || !canvas) return;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let paused=false;
   let gl;
   try { gl=canvas.getContext('webgl',{alpha:true,antialias:true,depth:true,premultipliedAlpha:false,powerPreference:'low-power'}); }
   catch { gl=null; }
   if (!gl) { setToggle('Motion unavailable', true); return; }
-  let running=true, ready=false, loading=true, shown=false, paused=false;
+  let running=true, ready=false, loading=true, shown=false;
   let visible=true, frame=0, clock=0, previous=0;
   let drag=false, px=0, py=0, targetYaw=-0.08, targetPitch=0.02, yaw=-0.08, pitch=0.02;
   let mesh=null, skin=null, bones=null, tracks=null, duration=8;
