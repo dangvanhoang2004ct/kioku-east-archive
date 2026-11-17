@@ -48,3 +48,12 @@ Chỉ sửa repository Kioku. Không ghi đè mã, quy tắc, tài sản hoặc 
 - [x] Cloudflare Preview PR #4 tại `https://972beb48.kioku-east-archive.pages.dev/` cho commit `63a801eb` báo deploy SUCCESS. Chromium layout fixture ở 320/375/390/768/1440 không đè hình 3D, không horizontal overflow.
 - [ ] Môi trường browser hiện không cung cấp WebGL/GPU và không truy cập Cloudflare URL trực tiếp để đo render thật; **không tuyên bố hoạt ảnh 3D đã được kiểm tra trực quan trên Safari/Chromium thực tế**.
 - [ ] Sau merge xác minh Cloudflare Production check khớp SHA; nếu trình duyệt người dùng vẫn không hỗ trợ WebGL thì fallback SVG phải hiện rõ.
+
+## Quyết định đính chính — một rồng duy nhất có chuyển động 3D (17/11/2026)
+- [x] Người dùng xác nhận lần trước **sai ý**: không được để con rồng WebGL hình khối và hình rồng minh họa tách thành 2. Rồng minh họa từ logo xanh KIOKU phải là bề mặt chuyển động của **chính mô hình WebGL**.
+- [x] Trên branch `feature/kioku-textured-dragon-webgl-20261117`: tách 3 asset từ SVG truy nét của artwork chủ thương hiệu (`kioku-owner-dragon-surface.svg`, `kioku-owner-wordmark-only.svg`, `kioku-owner-logo-stage-still.svg`). Không tạo ảnh AI mới, không thêm framework.
+- [x] Thay `features/shared/dragon-scene.js` bằng một lưới tam giác WebGL có texture rồng thật từ asset, uốn dọc thân và biến dạng theo chiều sâu; chuyển động chịu ảnh hưởng rất nhẹ bởi con trỏ. Đầu chuyển động ít hơn đuôi. Xóa mesh rồng hình khối thứ hai.
+- [x] Trang Home xóa `hero-owner-art` trong phần giới thiệu; chữ KIOKU đứng yên phía sau **cùng** canvas WebGL, rồng minh họa chuyển động phía trước. Dự phòng tĩnh khi WebGL không khả dụng hoặc `prefers-reduced-motion`.
+- [ ] Phân biệt rõ WebGL textured surface / 2.5D với mô hình rồng 3D khối hoàn chỉnh/rigged: đây là lưới 3D bề mặt, không khẳng định full volume rig.
+- [ ] QA khả năng dựng WebGL thật trên GPU Safari/Chromium trước khi tuyên bố hoạt ảnh PASS. Hệ thống Chromium cục bộ có thể chạy nhưng WebGL context bị chặn; kiểm tra cú pháp, tài nguyên và Cloudflare build riêng.
+- [ ] Cloudflare Production chỉ có thể xác nhận khi đúng commit trên `main` và check deploy success; giữ Production an toàn khi Preview chưa được nghiệm thu GPU.
