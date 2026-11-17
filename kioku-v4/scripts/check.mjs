@@ -33,6 +33,14 @@ for(const marker of ['kioku-owner-dragon-texture.webp','texture2D(u_art,v_uv)','
  if(!dragon.includes(marker))throw Error('Animated textured dragon regression: '+marker);
 }
 if(dragon.includes('ellipsoid(')||dragon.includes('function tube('))throw Error('Old second dragon mesh must not be rendered');
+const mobileEntry=home.match(/<div class="hero-mobile-entry shell">([\s\S]*?)<\/div>/);
+if(!mobileEntry||!mobileEntry[1].includes('href="./collection.html"'))throw Error('Mobile Collection first-screen entry missing');
+if(!css.includes('height:clamp(310px,42svh,365px)')||!css.includes('.home .hero-mobile-entry{'))throw Error('Mobile dragon stage too tall or entry missing');
+if(!home.includes('data-dragon-motion-toggle')||!home.includes('aria-pressed="false"'))throw Error('Accessible animation pause button missing');
+for(const marker of ["motionToggle?.addEventListener('click'","if(paused){stop();","const dt=lastFrameTime?","reduced.addEventListener?.('change'","setToggle('Motion unavailable',true)"]){
+ if(!dragon.includes(marker))throw Error('Animation pause/smoothness/reduced-motion regression: '+marker);
+}
+if(!dragon.includes('const columns=112,rows=44'))throw Error('Refined WebGL grid resolution regression');
 
 const index=content('index.html'),catalog=content('collection.html'),finder=content('finder.html'),detail=content('work.html'),condition=content('condition-guide.html');
 for(const maker of ['Bandai Spirits','MegaHouse'])if(!index.includes(maker))throw Error('Maker discovery missing on Home: '+maker);
