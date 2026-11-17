@@ -198,3 +198,30 @@ input::placeholder,textarea::placeholder{color:#AAA8BE;opacity:1}
  .home .wordmark img{width:132px}
  .home .hero-stage-caption img{width:122px}
 }
+
+
+/* Owner's KIOKU dragon artwork, traced from the reference sheet and layered
+   over the existing real WebGL scene. Paper inset preserves the navy wordmark. */
+.home .hero-stage{display:block}
+.home .hero-dragon{opacity:.35;filter:saturate(.85);pointer-events:auto}
+.home .hero-owner-art{
+  position:absolute;z-index:3;left:50%;top:51%;
+  transform:translate(-50%,-50%);margin:0;
+  width:min(1100px,calc(100% - 128px));max-width:calc(100% - 32px);
+  background:#f4f3ef;border:1px solid #dad8d1;
+  padding:clamp(12px,2.1vw,30px);
+  box-shadow:0 30px 95px #05050c85;
+  overflow:hidden;pointer-events:none;
+}
+.home .hero-owner-art img{display:block;width:100%;height:auto;max-width:100%}
+.home .hero-scroll-cue{z-index:5}
+@media(max-width:920px){
+  .home .hero-owner-art{width:calc(100% - 64px)}
+}
+@media(max-width:719px){
+  .home .hero-owner-art{width:calc(100% - 28px);padding:12px;top:49%}
+  .home .hero-dragon{opacity:.28}
+}
+@media(prefers-reduced-motion:reduce){
+  .home .hero-dragon{opacity:0}
+}
