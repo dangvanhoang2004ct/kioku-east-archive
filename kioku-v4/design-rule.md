@@ -92,3 +92,10 @@ Tệp này chỉ nằm ở `kioku-v4/design-rule.md`. **Không copy/sync/ghi đ�
 - The web-side GLB may polish materials and lighting without rewriting the geometry or rig. Always support multi-material primitives and 10 bones, pause, reduced-motion, GPU fallback and keyboard/pointer orbit.
 - Only one animated dragon; the illustrated KIOKU still is a fallback when no GPU or reduced motion. Do not insert a second decorative dragon.
 - Production gate: genuine GPU Safari/WebKit/Chromium render, real rig deformation at different angles, mobile Collection CTA above fold, and owner's final visual approval.
+
+## 15. River Guardian V4: one rigged dragon and strict likeness gate
+- One skinned 3D dragon only; whiskers, mane, scale plates and claws must carry proper joint weights. Do not overlay a second static dragon.
+- Owner-approved shape direction: narrow expressive head and eyes, backward swept horns/mane, navy/teal palette, pale segmented underbelly and elegant S-curve. Avoid red cartoon eyes, bronze straight horns, repeated hard spikes and blocky limbs.
+- V4 is a review iteration with measurable articulation gains, NOT final likeness. Original .blend source remains unchanged; future hand-sculpt work must save a separate file.
+- Keep 10-joint, 6-material, 6-second GLB, pause/play on skeletal timer, reduced-motion fallback, mobile Collection CTA.
+- Production is blocked until model has been visually approved from side, three-quarter, near-front, overhead and during actual GPU animation on real Safari/Chromium.
