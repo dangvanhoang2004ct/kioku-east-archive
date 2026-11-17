@@ -32,5 +32,6 @@ Chỉ sửa repository Kioku. Không ghi đè mã, quy tắc, tài sản hoặc 
 - [x] Yêu cầu tinh chỉnh đã được đưa vào `features/shared/dragon-scene.js` trên PR #3: sóng uốn lượn lan từ phần trước về đuôi, biên độ tăng dần về phía đuôi, phần đầu ổn định, độ biến dạng nhỏ; giữ sửa pháp tuyến để ánh sáng đúng với hình khối và hỗ trợ `prefers-reduced-motion`.
 - [x] Hero và header sử dụng asset nhận diện Shelf Echo **`brand/kioku-lockup-light.svg`** gốc, build copy asset vào `dist`; không tự tạo logo mới.
 - [x] ChatGPT chỉnh mã nguồn trực tiếp trên PR #3, ghi lại quyết định ở nhánh tài liệu PR #2; Codex chỉ còn merge/triển khai Production theo yêu cầu và kiểm chứng.
-- [ ] Kiểm chứng build, Preview và thao tác Safari/WebKit/Chromium của commit PR #3 mới trước Production; không đồng nhất push GitHub với site đã cập nhật.
+- [x] PR #3 commit `f488ca1028d355b2d741f452b11ab8ef5b21da53`: kiểm tra tĩnh tính nhất quán 10/10 PASS, Cloudflare Pages check báo Preview deploy success tại `https://a9bceeda.kioku-east-archive.pages.dev/`. Hai PR #2 (tài liệu) và #3 (giao diện) đã chuyển sang Ready for review; **chưa merge**.
+- [ ] Chưa thực hiện QA trình duyệt Safari/WebKit/Chromium thực tế cho commit mới; phải kiểm tra các thao tác ảnh 3D/fallback và URL Production khi phát hành.
 - [ ] Khi phát hành: merge PR #2 và PR #3 theo thứ tự an toàn, xác nhận Cloudflare Pages Production nhận đúng commit, không đụng Momo/RoleFit.
