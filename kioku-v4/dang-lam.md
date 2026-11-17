@@ -111,3 +111,10 @@ Chỉ sửa repository Kioku. Không ghi đè mã, quy tắc, tài sản hoặc 
 - Verified GLB container, 10 joints, 9 channels, 6 materials, 12,362 vertices and 20,064 triangles; CPU-projected five-view QA and 6s GIF generated, not GPU/browser render.
 - V4 generator and review report are committed; renderer/build/validator/check target the new GLB on a dedicated Preview branch.
 - Remaining: manual Blender 5.3 sculpt/weight-paint, visual likeness approval, Safari/Chromium GPU QA and accessibility controls. Never merge to Production without owner approval.
+
+
+## River Guardian V5 backfix — Preview-only checkpoint (18/11/2026)
+- [x] Tạo nhánh thử nghiệm riêng từ PR #8, không sửa `main` hay Production. Mô hình mới giữ topology 12.362 đỉnh, 20.064 tam giác, 6 primitives/materials, 10 bones, 9 tracks, 6-second loop; giảm đỉnh xương lưng ở tư thế gốc từ ~1,187 xuống ~0,727 và tái nhắm lại mesh, inverse-bind và animation.
+- [x] Chuyển `dragon-glb-scene.js`, `scripts/build.mjs`, `scripts/check.mjs`, `scripts/validate-rig.mjs` sang `assets/models/kioku-river-guardian-v5-backfix-review.glb`. V5 được tái tạo từ GLB V4 cùng thuật toán backfix Python, sai khác hình học tối đa ~1,2e-7 đơn vị và hoạt ảnh quaternion trùng khi đối chiếu offline; khác biệt nhỏ ở pháp tuyến do sai số tính toán số thực.
+- [ ] Cloudflare Preview: chờ kết quả build/check của commit nhánh này.
+- [ ] Chưa nghiệm thu GPU Safari/Chromium, Blender import, đa góc, pause/reduced-motion; KHÔNG MERGE PRODUCTION.

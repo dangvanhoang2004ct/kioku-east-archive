@@ -99,3 +99,10 @@ Tệp này chỉ nằm ở `kioku-v4/design-rule.md`. **Không copy/sync/ghi đ�
 - V4 is a review iteration with measurable articulation gains, NOT final likeness. Original .blend source remains unchanged; future hand-sculpt work must save a separate file.
 - Keep 10-joint, 6-material, 6-second GLB, pause/play on skeletal timer, reduced-motion fallback, mobile Collection CTA.
 - Production is blocked until model has been visually approved from side, three-quarter, near-front, overhead and during actual GPU animation on real Safari/Chromium.
+
+
+## 16. River Guardian V5 — fix dorsal hump, preview-only
+- Use `kioku-river-guardian-v5-backfix-review.glb` only on a dedicated review branch; PR #8 V4 remains the safe comparison baseline. Keep a single volumetric dragon and the approved original logo as static fallback.
+- V5 repositions the original 10-joint rest spine and retargets bind matrices, skinned vertex heights, normals, and nine 6-second rotation tracks. The middle body should visibly articulate, with a calmer tail rather than a fixed hump or exaggerated whip.
+- Preserve pointer/keyboard orbit, Pause/Play, reduced-motion fallback, mobile Collection first-screen CTA, and 7-page collector functionality.
+- Production gate: approve silhouette and joint articulation after genuine GPU Safari/Chromium QA; do not merge for a successful static build alone.
