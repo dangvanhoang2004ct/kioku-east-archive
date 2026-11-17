@@ -13,7 +13,10 @@ from scipy.interpolate import CubicSpline
 from scipy.spatial.transform import Rotation
 
 HERE=Path(__file__).resolve().parent
-SOURCE=Path('/mnt/data/kioku-river-guardian-v3-review.glb')
+import sys
+SOURCE=Path(sys.argv[1]).expanduser().resolve() if len(sys.argv)>1 else (HERE/'kioku-river-guardian-v3-review.glb')
+if not SOURCE.is_file():
+ raise FileNotFoundError('Provide the V3 GLB source as the first argument; the original Blender source is never overwritten')
 DEST=HERE/'kioku-river-guardian-v4-review.glb'
 
 blob=SOURCE.read_bytes()
