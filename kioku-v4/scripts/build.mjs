@@ -7,7 +7,7 @@ for(const file of pages)cpSync(join(base,file),join(out,file));
 for(const f of ['assets/site.css','brand/kioku-favicon.svg','brand/kioku-lockup.svg','brand/kioku-lockup-light.svg','brand/kioku-mark.svg']){
  mkdirSync(join(out,f.split('/').slice(0,-1).join('/')),{recursive:true});cpSync(join(base,f),join(out,f));
 }
-for(const asset of ['assets/img/reference-plate.svg','assets/img/kioku-dragon-flow.svg','assets/img/kioku-dragon-still.svg','assets/img/kioku-owner-dragon-logo.svg','assets/img/kioku-owner-dragon-surface.svg','assets/img/kioku-owner-dragon-texture.webp','assets/img/kioku-owner-wordmark-only.svg','assets/img/kioku-owner-logo-stage-still.svg','assets/models/kioku-dragon-rig-v1.glb']){
+for(const asset of ['assets/img/reference-plate.svg','assets/img/kioku-dragon-flow.svg','assets/img/kioku-dragon-still.svg','assets/img/kioku-owner-dragon-logo.svg','assets/img/kioku-owner-dragon-surface.svg','assets/img/kioku-owner-dragon-texture.webp','assets/img/kioku-owner-wordmark-only.svg','assets/img/kioku-owner-logo-stage-still.svg','assets/models/kioku-river-guardian-v2.glb']){
  mkdirSync(join(out,asset.split('/').slice(0,-1).join('/')),{recursive:true});cpSync(join(base,asset),join(out,asset));
 }
 for(const f of ['features/shared/site.js','features/shared/dragon-scene.js','features/shared/dragon-glb-scene.js','features/catalog/records.js','features/storefront/favorites.js','features/storefront/catalog.js','features/storefront/detail.js','features/storefront/compare.js','features/discovery/finder.js','features/condition/notes.js']){
