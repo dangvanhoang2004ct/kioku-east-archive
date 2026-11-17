@@ -10,7 +10,7 @@ for(const f of ['assets/site.css','brand/kioku-favicon.svg','brand/kioku-lockup.
 for(const asset of ['assets/img/reference-plate.svg','assets/img/kioku-dragon-flow.svg','assets/img/kioku-dragon-still.svg']){
  mkdirSync(join(out,'assets/img'),{recursive:true});cpSync(join(base,asset),join(out,asset));
 }
-for(const f of ['features/shared/site.js','features/catalog/records.js','features/storefront/favorites.js','features/storefront/catalog.js','features/storefront/detail.js','features/storefront/compare.js','features/discovery/finder.js','features/condition/notes.js']){
+for(const f of ['features/shared/site.js','features/shared/dragon-scene.js','features/catalog/records.js','features/storefront/favorites.js','features/storefront/catalog.js','features/storefront/detail.js','features/storefront/compare.js','features/discovery/finder.js','features/condition/notes.js']){
  mkdirSync(join(out,f.split('/').slice(0,-1).join('/')),{recursive:true});cpSync(join(base,f),join(out,f));
 }
 console.log('KIOKU V6 static frontend built: seven English pages, modular discovery, comparisons and condition notes; no transaction backend or checkout');
