@@ -111,3 +111,9 @@ Chỉ sửa repository Kioku. Không ghi đè mã, quy tắc, tài sản hoặc 
 - Verified GLB container, 10 joints, 9 channels, 6 materials, 12,362 vertices and 20,064 triangles; CPU-projected five-view QA and 6s GIF generated, not GPU/browser render.
 - V4 generator and review report are committed; renderer/build/validator/check target the new GLB on a dedicated Preview branch.
 - Remaining: manual Blender 5.3 sculpt/weight-paint, visual likeness approval, Safari/Chromium GPU QA and accessibility controls. Never merge to Production without owner approval.
+
+## Codex Mac + Antigravity shared workspace — 18/11/2026
+- [x] Added repository-root `AGENTS.md` on V4 preview branch to share startup instructions, project rules, role split and Git/worktree safety. Google Antigravity and Codex both discover this filename.
+- [x] Existing `chatgpt.md`, `design-rule.md`, notes and Preview/Production gates are unchanged.
+- [ ] Local Mac connection is **not yet confirmed**: both applications must open the same local Git checkout / linked worktrees. The ChatGPT GitHub connector cannot open the user's Mac apps or change their GUI settings.
+- [ ] Project file search did not surface a specific uploaded Antigravity configuration; do not claim one was imported.
