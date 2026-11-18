@@ -138,4 +138,7 @@ Chỉ sửa repository Kioku. Không ghi đè mã, quy tắc, tài sản hoặc 
   - Hiệu chỉnh gamma `0.4545` trong fragment shader để màu PBR linear RGB trong GLB hiển thị đúng bảng màu KIOKU trên cả Blender Cycles và WebGL1.
   - Canh khung nhìn `u_frame` tại `(-0.86, 0.02)` với toàn bộ 12 mốc thời gian trong chu kỳ 6s nằm gọn trong NDC: mobile `x=[-0.850, 0.790], y=[-0.862, 0.837]`; desktop `x=[-0.879, 0.817], y=[-0.900, 0.874]`.
 - [x] **Kiểm thử sau chỉnh sửa cuối**: `npm test` (`check.mjs` + `validate-rig.mjs` + `validate-inventory.mjs`), `npm run build`, `npm run preview` và Node WebGL mock (mobile/desktop/Pause-Play/reduced-motion/no-WebGL fallback) đều PASS.
-- [ ] **Blocker trước khi deploy Production**: máy Mac hiện chưa đăng nhập GitHub (`gh auth status` / Git keychain chưa có token cho `https://github.com/dangvanhoang2004ct/kioku-east-archive.git`), nên chưa thể `git push` hoặc merge PR để kích hoạt Cloudflare Pages Production.
+- [x] **Deploy Cloudflare Pages Production**: Đã đẩy trực tiếp bản build `dist/` (SHA `97a8467`) lên dự án `kioku-east-archive` (`--branch=main`) qua Wrangler CLI.
+  - Production URL: `https://kioku-east-archive.pages.dev/` (Deployment URL: `https://0bd68a08.kioku-east-archive.pages.dev/`).
+  - Đã kiểm chứng trực tiếp HTTP 200 cho cả 7 trang, `features/shared/dragon-glb-scene.js` (`14,899` bytes, có `0.4545` gamma & `-.86,.02` framing) và `assets/models/kioku-river-guardian-v6-longform.glb` (`1,142,720` bytes) trên domain Production.
+- [ ] Đồng bộ/push nhánh Git lên GitHub khi đăng nhập `gh auth login` trên máy Mac.
