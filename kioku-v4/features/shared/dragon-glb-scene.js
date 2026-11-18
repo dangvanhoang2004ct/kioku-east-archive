@@ -262,8 +262,8 @@ void main() {
     const x=[Math.sin(pitch/2),0,0,Math.cos(pitch/2)];
     gl.uniformMatrix4fv(uniforms.orbit,false,multiply(transform(x,[0,0,0]),transform(y,[0,0,0])));
     const mobile=width<720;
-    // V6 Longform: wider view preserves the extended tail and slender head on mobile and desktop.
-    gl.uniform4f(uniforms.frame,2/(mobile?16.5:16.0),mobile?.66:.60,-1.94,.60);
+    // V6 Longform: wider view preserves the extended tail, horns and claws without vertical clipping on mobile.
+    gl.uniform4f(uniforms.frame,2/(mobile?16.5:16.0),mobile?.56:.58,-1.94,.58);
     for(const part of draws) {
       model.attrs.forEach(([,key,size,type],i)=>{
         gl.bindBuffer(gl.ARRAY_BUFFER,part.vbos[i]);

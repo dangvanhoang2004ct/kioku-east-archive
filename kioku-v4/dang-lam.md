@@ -126,3 +126,10 @@ Chỉ sửa repository Kioku. Không ghi đè mã, quy tắc, tài sản hoặc 
 - [x] Web renderer, build/check/validator dùng `kioku-river-guardian-v6-longform.glb`; khung nhìn x được giãn và canh giữa -1.94 để không cắt đuôi trên mobile.
 - [ ] Cần nghiệm thu GPU Safari/Chromium, mobile 390px, desktop 1440px, Pause/Play, orbit, reduced-motion và hình dáng so với artwork trước khi merge. Cloudflare deploy success không phải GPU QA.
 - [ ] Vẫn chưa chỉnh file `.blend` gốc trên máy Mac. Không merge main/Production tự động.
+
+### Kiểm chứng tiếp nối trên Mac (18/11/2026)
+- [x] Khởi tạo worktree cô lập tại nhánh `feature/kioku-river-guardian-v6-longform-preview-20261118` (PR #10, không ghi đè thư mục làm việc cục bộ, không merge `main`/Production).
+- [x] **Blender 5.3.0 headless import + Cycles CPU render**: `assets/models/kioku-river-guardian-v6-longform.glb` import thành công (`6 objects, 1 armatures, 1 actions`) và render kiểm tra hình dáng thân dài, đầu/mõm/sừng/râu/lưng mượt.
+- [x] **Sửa lỗi cắt khung hình dọc trên mobile**: tính toán NDC 12 khung hình suốt chu kỳ 6 giây phát hiện `u_frame.y = 0.66` trên mobile làm rồng vượt biên dọc (`y = [-1.012, 0.998]`). Đã cập nhật `features/shared/dragon-glb-scene.js` thành `mobile ? 0.56 : 0.58` và `fw = 0.58`, đưa toàn bộ chuyển động 6s vào vùng an toàn: mobile `x=[-0.873, 0.848]`, `y=[-0.847, 0.858]`; desktop `x=[-0.900, 0.875]`, `y=[-0.877, 0.888]`.
+- [x] **Kiểm thử sau chỉnh sửa cuối**: `npm test` (7 trang, 10 script, 31 tệp, rig validator 15.718 vertices / 26.384 triangles), `npm run build`, và Node WebGL mock (mobile, desktop, Pause/Play, `prefers-reduced-motion`, fallback không WebGL) đều PASS.
+- [ ] Chưa nghiệm thu GPU trình duyệt thực tế (Safari/Chromium trên Mac không có Playwright/Chrome DevTools kết nối trong phiên này) và chưa đẩy commit lên GitHub do `gh` chưa đăng nhập.
