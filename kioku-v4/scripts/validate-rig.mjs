@@ -45,7 +45,7 @@ for(const p of j.meshes[0].primitives){
  }
  vertices+=count;triangles+=index.count/3;
 }
-if(vertices!==25887||triangles!==43236)throw Error('Unexpected V6 Longform mesh count');
+if(vertices!==19882||triangles!==36304)throw Error('Unexpected V6 Longform mesh count');
 for(const c of rotChannels){
  if(c.target.path!=='rotation')throw Error('Unexpected animation target');
  const s=anim.samplers[c.sampler],ta=j.accessors[s.input],ro=j.accessors[s.output];
