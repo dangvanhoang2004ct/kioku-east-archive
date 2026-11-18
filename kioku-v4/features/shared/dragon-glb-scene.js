@@ -79,7 +79,7 @@ void main() {
   float lit = 0.46 + 0.37*max(dot(n,lightA),0.0)
                     + 0.15*max(dot(n,lightB),0.0);
   float rim = pow(1.0-abs(n.z),2.3);
-  vec3 base = pow(max(u_tint,vec3(0.0)),vec3(0.91));
+  vec3 base = pow(max(u_tint,vec3(0.0)),vec3(0.4545));
   vec3 rgb = base*lit + vec3(0.062,0.10,0.16)*rim*0.48;
   gl_FragColor = vec4(rgb,1.0);
 }`;
@@ -165,7 +165,7 @@ void main() {
       if(idx.length && Math.max(...idx.subarray(0,Math.min(idx.length,400)))>65535)
         throw new Error('Unsupported 32-bit mesh index');
       const position=accessor(a.POSITION), normal=accessor(a.NORMAL),
-            joint=accessor(a.JOINTS_0), weight=accessor(a.WEIGHTS_0);
+            joint=new Uint16Array(accessor(a.JOINTS_0)), weight=accessor(a.WEIGHTS_0);
       const n=position.length/3;
       if(n>65535)throw new Error('Single part too large for WebGL1');
       let tint=json.materials?.[prim.material]?.pbrMetallicRoughness?.baseColorFactor||[0.31,0.48,0.67,1];
@@ -262,7 +262,8 @@ void main() {
     const x=[Math.sin(pitch/2),0,0,Math.cos(pitch/2)];
     gl.uniformMatrix4fv(uniforms.orbit,false,multiply(transform(x,[0,0,0]),transform(y,[0,0,0])));
     const mobile=width<720;
-    gl.uniform4f(uniforms.frame,2/(mobile?10.7:11.7),mobile?.66:.60,-.38,.54);
+    // Production River Guardian S-curve framing: centered at (-0.86, 0.02) without head/tail/horn/limb clipping.
+    gl.uniform4f(uniforms.frame,2/(mobile?12.2:11.8),mobile?.45:.47,-.86,.02);
     for(const part of draws) {
       model.attrs.forEach(([,key,size,type],i)=>{
         gl.bindBuffer(gl.ARRAY_BUFFER,part.vbos[i]);
@@ -315,7 +316,7 @@ void main() {
   });
   canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();fallback('WebGL context lost');});
   if(reduced.matches){root.dataset.dragonState='fallback';setToggle('Motion reduced',true);}
-  fetch('./assets/models/kioku-river-guardian-v5-backfix-review.glb')
+  fetch('./assets/models/kioku-river-guardian-v6-longform.glb')
     .then(r=>{if(!r.ok)throw new Error('Model HTTP '+r.status);return r.arrayBuffer();})
     .then(buffer=>{
       const data=parseGLB(buffer);

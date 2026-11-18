@@ -106,3 +106,10 @@ Tệp này chỉ nằm ở `kioku-v4/design-rule.md`. **Không copy/sync/ghi đ�
 - V5 repositions the original 10-joint rest spine and retargets bind matrices, skinned vertex heights, normals, and nine 6-second rotation tracks. The middle body should visibly articulate, with a calmer tail rather than a fixed hump or exaggerated whip.
 - Preserve pointer/keyboard orbit, Pause/Play, reduced-motion fallback, mobile Collection first-screen CTA, and 7-page collector functionality.
 - Production gate: approve silhouette and joint articulation after genuine GPU Safari/Chromium QA; do not merge for a successful static build alone.
+
+
+## 17. River Guardian V6 Longform — Preview-only
+- Preserve owner's original blue river-dragon artwork as visual target. Current V6 is a refined 3D derivative of the existing V5 rig, not a new dragon and not an approved final likeness.
+- Long body/neck and tapered torso: keep 10-bone 6-second armature animation, six material primitives, 9 rotation tracks, subtle face/antler/whisker detail and retained original illustration fallback.
+- On web, V6 length needs a larger camera frame than V5: horizontal framing 16.0 desktop / 16.5 mobile, centered around x=-1.94. Recheck heads/tails and mobile CTA during actual browser GPU QA.
+- Do not merge to main/Production until visual likeness, Safari/Chromium real GPU motion, Pause/Play, orbit, fallback and responsive behavior are approved.

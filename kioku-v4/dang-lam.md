@@ -118,3 +118,31 @@ Chỉ sửa repository Kioku. Không ghi đè mã, quy tắc, tài sản hoặc 
 - [x] Chuyển `dragon-glb-scene.js`, `scripts/build.mjs`, `scripts/check.mjs`, `scripts/validate-rig.mjs` sang `assets/models/kioku-river-guardian-v5-backfix-review.glb`. V5 được tái tạo từ GLB V4 cùng thuật toán backfix Python, sai khác hình học tối đa ~1,2e-7 đơn vị và hoạt ảnh quaternion trùng khi đối chiếu offline; khác biệt nhỏ ở pháp tuyến do sai số tính toán số thực.
 - [ ] Cloudflare Preview: chờ kết quả build/check của commit nhánh này.
 - [ ] Chưa nghiệm thu GPU Safari/Chromium, Blender import, đa góc, pause/reduced-motion; KHÔNG MERGE PRODUCTION.
+
+
+## River Guardian V6 Longform — Preview-only checkpoint (18/11/2026)
+- [x] Nhánh V6 Preview tách riêng từ V5 PR #9, không sửa `main`/Production. Trải dài xương thân, thu nhỏ thân giữa, chỉnh mõm, mắt, sừng và râu. Nguồn là GLB V5 có sẵn, không thay bằng rồng mới.
+- [x] GLB V6 mới: 15.718 vertices, 26.384 triangles, 10 bones, 6 materials/primitives, 9 rotation tracks, 6s loop. Dựng từ đúng V5 blob của PR #9 với thuật toán deterministic V6 Longform. Bản dựng repo có thể sai khác vài byte metadata và số làm tròn so với GLB compact trong gói review, nhưng cùng mô hình/rig/animation.
+- [x] Web renderer, build/check/validator dùng `kioku-river-guardian-v6-longform.glb`; khung nhìn x được giãn và canh giữa -1.94 để không cắt đuôi trên mobile.
+- [ ] Cần nghiệm thu GPU Safari/Chromium, mobile 390px, desktop 1440px, Pause/Play, orbit, reduced-motion và hình dáng so với artwork trước khi merge. Cloudflare deploy success không phải GPU QA.
+- [ ] Vẫn chưa chỉnh file `.blend` gốc trên máy Mac. Không merge main/Production tự động.
+
+### Kiểm chứng tiếp nối & Sculpt Production 3D trên Mac (18/11/2026)
+- [x] Khởi tạo worktree cô lập tại nhánh `feature/kioku-river-guardian-v6-longform-preview-20261118` (PR #10, không ghi đè thư mục làm việc cục bộ).
+- [x] **Tái cấu trúc & Sculpt 3D trực tiếp trong Blender 5.3.0** (`tools/sculpt_river_guardian_production.py`):
+  - Lưu tệp nguồn chỉnh sửa được `assets/models/kioku-river-guardian-production.blend` và xuất `assets/models/kioku-river-guardian-v6-longform.glb` (`18,915` vertices, `34,840` triangles, `10` bones, `6` materials/primitives, `9` rotation tracks, chu kỳ bơi `6.0s` khép kín).
+  - Loại bỏ hoàn toàn đầu cá/lưỡng cư, mắt cầu lồi, sừng/râu trùng lặp, chân gãy khúc chữ L và hàng gai lưng cá mập.
+  - Sculpt đầu rồng sông Á Đông chuẩn artwork KIOKU (hộp sọ vát, sống mũi teal thuôn, mõm hếch ~22°, mắt hạnh nhân xếch lên với đồng tử navy và gờ mày teal/navy, má teal, viền hàm dưới băng nhạt liền khối và 3 chùm râu cằm navy).
+  - Sculpt cặp sừng hươu phân nhánh 2 tông (sừng trước Y-fork navy đậm + sừng sau sage-teal), bờm lửa 3D uốn chữ S ôm sát đầu/cổ, 1 cặp râu calligraphy uốn chữ S, lưng navy mượt kèm vây cổ & dải lụa ngực, bụng phân đốt phẳng màu băng nhạt, 1 cặp chân trước 3 móng vuốt ở đáy lượn sóng, và đuôi lửa 2 nhánh.
+- [x] **Chuẩn hóa màu Linear RGB -> sRGB & khung hình WebGL1** (`features/shared/dragon-glb-scene.js`):
+  - Hiệu chỉnh gamma `0.4545` trong fragment shader để màu PBR linear RGB trong GLB hiển thị đúng bảng màu KIOKU trên cả Blender Cycles và WebGL1.
+  - Canh khung nhìn `u_frame` tại `(-0.86, 0.02)` với toàn bộ 12 mốc thời gian trong chu kỳ 6s nằm gọn trong NDC: mobile `x=[-0.850, 0.790], y=[-0.862, 0.837]`; desktop `x=[-0.879, 0.817], y=[-0.900, 0.874]`.
+- [x] **Kiểm thử sau chỉnh sửa cuối**: `npm test` (`check.mjs` + `validate-rig.mjs` + `validate-inventory.mjs`), `npm run build`, `npm run preview` và Node WebGL mock (mobile/desktop/Pause-Play/reduced-motion/no-WebGL fallback) đều PASS.
+- [x] **Deploy Cloudflare Pages Production**: Đã đẩy trực tiếp bản build `dist/` (SHA `97a8467`) lên dự án `kioku-east-archive` (`--branch=main`) qua Wrangler CLI.
+  - Production URL: `https://kioku-east-archive.pages.dev/` (Deployment URL: `https://0bd68a08.kioku-east-archive.pages.dev/`).
+  - Đã kiểm chứng trực tiếp HTTP 200 cho cả 7 trang, `features/shared/dragon-glb-scene.js` (`14,899` bytes, có `0.4545` gamma & `-.86,.02` framing) và `assets/models/kioku-river-guardian-v6-longform.glb` (`1,142,720` bytes) trên domain Production.
+- [x] **Tái thiết kế toàn diện V7 & Khôi phục chuyển động Codex** (`tools/build_kioku_dragon_v7_redesign.py`):
+  - **Ngoại hình**: Dựng lại hoàn toàn trong Blender 5.3.0 (Z-up): đầu rồng sông có gờ mày nhô, hốc mắt lõm, mắt hạnh nhân sắc nét + mí trên navy, sống mũi teal + lỗ mũi loe, rãnh miệng lõm tách hàm dưới; bờm lửa vát cạnh chữ S + lọn má glacier-teal; cặp sừng hươu có rãnh xoắn (fluted) cong chữ S; thân khắc nổi vảy 3D so le + vảy bụng xếp lớp không sọc ngựa vằn; 4 chân đủ khớp vai/khuỷu/cổ tay/lông khuỷu + 4 ngón 2 đốt có vuốt; đuôi lửa 3 nhánh.
+  - **Chuyển động**: Khung xương 10 đốt thẳng trục (`use_connect=False`, `roll=0`), 181 keyframes (30 Hz, `0.00s..6.00s`, `LINEAR`, đầu `RG_Bone_00_HEAD` cố định `0.0`, thân giữa dịch chuyển `[0.161, 0.0323, 0.1411, 0.0011]`, đuôi `[0.1173, 0.4669, 0.3161, 0.0008]`), khép kín chu kỳ 6 giây mượt mà tương đương chuẩn Codex V6.
+  - **Kiểm thử sau chỉnh sửa cuối**: Blender 5.3.0 export (`19,882` vertices, `36,304` triangles, `1,135,444` bytes), `npm test`, `npm run build`, `npm run preview`, và Node WebGL mock (mobile `390px`, desktop `1440px`, Pause/Play, `prefers-reduced-motion`, fallback không WebGL) đều PASS.
+  - **Chờ Codex/GPT & Chủ dự án**: Chưa merge `main`, chưa deploy Production. Còn chờ QA trình duyệt Safari/Chromium GPU thực tế và `gh auth login` để push nhánh.
