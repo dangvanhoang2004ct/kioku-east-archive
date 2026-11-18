@@ -165,7 +165,7 @@ void main() {
       if(idx.length && Math.max(...idx.subarray(0,Math.min(idx.length,400)))>65535)
         throw new Error('Unsupported 32-bit mesh index');
       const position=accessor(a.POSITION), normal=accessor(a.NORMAL),
-            joint=accessor(a.JOINTS_0), weight=accessor(a.WEIGHTS_0);
+            joint=new Uint16Array(accessor(a.JOINTS_0)), weight=accessor(a.WEIGHTS_0);
       const n=position.length/3;
       if(n>65535)throw new Error('Single part too large for WebGL1');
       let tint=json.materials?.[prim.material]?.pbrMetallicRoughness?.baseColorFactor||[0.31,0.48,0.67,1];

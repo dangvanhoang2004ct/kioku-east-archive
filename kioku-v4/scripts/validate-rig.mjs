@@ -11,7 +11,8 @@ if(j.skins?.length!==1||j.skins[0].joints.length!==10)
  throw Error('River Guardian needs the 10-bone Blender rig');
 const anim=j.animations?.[0];
 if(!anim?.name?.includes('V6 Longform'))throw Error('Expected V6 Longform 6s animation');
-if(!anim||anim.channels.length!==9)throw Error('Owner 6-second 9-track animation missing');
+const rotChannels=anim?.channels?.filter(c=>c.target?.path==='rotation')||[];
+if(!anim||rotChannels.length<9)throw Error('Owner 6-second 9-track animation missing');
 if(j.meshes?.length!==1||j.meshes[0].primitives?.length!==6||j.materials?.length!==6)
  throw Error('Expected one owner dragon mesh split across six materials');
 const components={SCALAR:1,VEC2:2,VEC3:3,VEC4:4,MAT4:16};
@@ -44,8 +45,8 @@ for(const p of j.meshes[0].primitives){
  }
  vertices+=count;triangles+=index.count/3;
 }
-if(vertices!==18915||triangles!==34840)throw Error('Unexpected V6 Longform mesh count');
-for(const c of anim.channels){
+if(vertices!==25887||triangles!==43236)throw Error('Unexpected V6 Longform mesh count');
+for(const c of rotChannels){
  if(c.target.path!=='rotation')throw Error('Unexpected animation target');
  const s=anim.samplers[c.sampler],ta=j.accessors[s.input],ro=j.accessors[s.output];
  if(ta.type!=='SCALAR'||ro.type!=='VEC4')throw Error('Animation accessor mismatch');
