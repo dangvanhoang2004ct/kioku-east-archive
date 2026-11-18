@@ -79,7 +79,7 @@ void main() {
   float lit = 0.46 + 0.37*max(dot(n,lightA),0.0)
                     + 0.15*max(dot(n,lightB),0.0);
   float rim = pow(1.0-abs(n.z),2.3);
-  vec3 base = pow(max(u_tint,vec3(0.0)),vec3(0.91));
+  vec3 base = pow(max(u_tint,vec3(0.0)),vec3(0.4545));
   vec3 rgb = base*lit + vec3(0.062,0.10,0.16)*rim*0.48;
   gl_FragColor = vec4(rgb,1.0);
 }`;
@@ -262,8 +262,8 @@ void main() {
     const x=[Math.sin(pitch/2),0,0,Math.cos(pitch/2)];
     gl.uniformMatrix4fv(uniforms.orbit,false,multiply(transform(x,[0,0,0]),transform(y,[0,0,0])));
     const mobile=width<720;
-    // V6 Longform: wider view preserves the extended tail, horns and claws without vertical clipping on mobile.
-    gl.uniform4f(uniforms.frame,2/(mobile?16.5:16.0),mobile?.56:.58,-1.94,.58);
+    // Production River Guardian S-curve framing: centered at (-0.86, 0.02) without head/tail/horn/limb clipping.
+    gl.uniform4f(uniforms.frame,2/(mobile?12.2:11.8),mobile?.45:.47,-.86,.02);
     for(const part of draws) {
       model.attrs.forEach(([,key,size,type],i)=>{
         gl.bindBuffer(gl.ARRAY_BUFFER,part.vbos[i]);

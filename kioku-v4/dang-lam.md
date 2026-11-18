@@ -127,9 +127,15 @@ Chỉ sửa repository Kioku. Không ghi đè mã, quy tắc, tài sản hoặc 
 - [ ] Cần nghiệm thu GPU Safari/Chromium, mobile 390px, desktop 1440px, Pause/Play, orbit, reduced-motion và hình dáng so với artwork trước khi merge. Cloudflare deploy success không phải GPU QA.
 - [ ] Vẫn chưa chỉnh file `.blend` gốc trên máy Mac. Không merge main/Production tự động.
 
-### Kiểm chứng tiếp nối trên Mac (18/11/2026)
-- [x] Khởi tạo worktree cô lập tại nhánh `feature/kioku-river-guardian-v6-longform-preview-20261118` (PR #10, không ghi đè thư mục làm việc cục bộ, không merge `main`/Production).
-- [x] **Blender 5.3.0 headless import + Cycles CPU render**: `assets/models/kioku-river-guardian-v6-longform.glb` import thành công (`6 objects, 1 armatures, 1 actions`) và render kiểm tra hình dáng thân dài, đầu/mõm/sừng/râu/lưng mượt.
-- [x] **Sửa lỗi cắt khung hình dọc trên mobile**: tính toán NDC 12 khung hình suốt chu kỳ 6 giây phát hiện `u_frame.y = 0.66` trên mobile làm rồng vượt biên dọc (`y = [-1.012, 0.998]`). Đã cập nhật `features/shared/dragon-glb-scene.js` thành `mobile ? 0.56 : 0.58` và `fw = 0.58`, đưa toàn bộ chuyển động 6s vào vùng an toàn: mobile `x=[-0.873, 0.848]`, `y=[-0.847, 0.858]`; desktop `x=[-0.900, 0.875]`, `y=[-0.877, 0.888]`.
-- [x] **Kiểm thử sau chỉnh sửa cuối**: `npm test` (7 trang, 10 script, 31 tệp, rig validator 15.718 vertices / 26.384 triangles), `npm run build`, và Node WebGL mock (mobile, desktop, Pause/Play, `prefers-reduced-motion`, fallback không WebGL) đều PASS.
-- [ ] Chưa nghiệm thu GPU trình duyệt thực tế (Safari/Chromium trên Mac không có Playwright/Chrome DevTools kết nối trong phiên này) và chưa đẩy commit lên GitHub do `gh` chưa đăng nhập.
+### Kiểm chứng tiếp nối & Sculpt Production 3D trên Mac (18/11/2026)
+- [x] Khởi tạo worktree cô lập tại nhánh `feature/kioku-river-guardian-v6-longform-preview-20261118` (PR #10, không ghi đè thư mục làm việc cục bộ).
+- [x] **Tái cấu trúc & Sculpt 3D trực tiếp trong Blender 5.3.0** (`tools/sculpt_river_guardian_production.py`):
+  - Lưu tệp nguồn chỉnh sửa được `assets/models/kioku-river-guardian-production.blend` và xuất `assets/models/kioku-river-guardian-v6-longform.glb` (`18,915` vertices, `34,840` triangles, `10` bones, `6` materials/primitives, `9` rotation tracks, chu kỳ bơi `6.0s` khép kín).
+  - Loại bỏ hoàn toàn đầu cá/lưỡng cư, mắt cầu lồi, sừng/râu trùng lặp, chân gãy khúc chữ L và hàng gai lưng cá mập.
+  - Sculpt đầu rồng sông Á Đông chuẩn artwork KIOKU (hộp sọ vát, sống mũi teal thuôn, mõm hếch ~22°, mắt hạnh nhân xếch lên với đồng tử navy và gờ mày teal/navy, má teal, viền hàm dưới băng nhạt liền khối và 3 chùm râu cằm navy).
+  - Sculpt cặp sừng hươu phân nhánh 2 tông (sừng trước Y-fork navy đậm + sừng sau sage-teal), bờm lửa 3D uốn chữ S ôm sát đầu/cổ, 1 cặp râu calligraphy uốn chữ S, lưng navy mượt kèm vây cổ & dải lụa ngực, bụng phân đốt phẳng màu băng nhạt, 1 cặp chân trước 3 móng vuốt ở đáy lượn sóng, và đuôi lửa 2 nhánh.
+- [x] **Chuẩn hóa màu Linear RGB -> sRGB & khung hình WebGL1** (`features/shared/dragon-glb-scene.js`):
+  - Hiệu chỉnh gamma `0.4545` trong fragment shader để màu PBR linear RGB trong GLB hiển thị đúng bảng màu KIOKU trên cả Blender Cycles và WebGL1.
+  - Canh khung nhìn `u_frame` tại `(-0.86, 0.02)` với toàn bộ 12 mốc thời gian trong chu kỳ 6s nằm gọn trong NDC: mobile `x=[-0.850, 0.790], y=[-0.862, 0.837]`; desktop `x=[-0.879, 0.817], y=[-0.900, 0.874]`.
+- [x] **Kiểm thử sau chỉnh sửa cuối**: `npm test` (`check.mjs` + `validate-rig.mjs` + `validate-inventory.mjs`), `npm run build`, `npm run preview` và Node WebGL mock (mobile/desktop/Pause-Play/reduced-motion/no-WebGL fallback) đều PASS.
+- [ ] **Blocker trước khi deploy Production**: máy Mac hiện chưa đăng nhập GitHub (`gh auth status` / Git keychain chưa có token cho `https://github.com/dangvanhoang2004ct/kioku-east-archive.git`), nên chưa thể `git push` hoặc merge PR để kích hoạt Cloudflare Pages Production.
