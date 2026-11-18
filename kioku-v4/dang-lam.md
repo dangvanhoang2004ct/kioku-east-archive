@@ -1,5 +1,10 @@
 # KIOKU — Việc đang làm
 
+## 19/11/2026 — KIOKU clean architecture (khởi động, chưa sửa runtime)
+- [x] Đã chốt quy tắc refactor cho 7 trang nguồn riêng trong pages/, UI dùng chung ở components/, đọc/ghi dữ liệu ở data/, một trách nhiệm/tệp, tối đa 300 dòng cho mã nguồn tự viết được tạo/sửa, kiểm tra chức năng cũ trước khi thêm mới. Quy tắc chuẩn tại root AGENTS.md trên nhánh refactor/kioku-clean-architecture-rules-20261119, tách từ V7 PR #10.
+- [ ] Chờ Antigravity kiểm kê kiến trúc P0 (read_only) và Codex Web đối chiếu; chưa chuyển page/JS, chưa sửa renderer/GLB, chưa kiểm thử hay deploy.
+- [ ] Sau P0, chỉ triển khai incremental trên nhánh V7 riêng khi chủ dự án và người vận hành Mac đã bật quyền sửa phù hợp; Codex review PR/QA theo P0–P5, không merge hoặc đưa Production khi chưa được duyệt.
+
 ## Checkpoint xác minh: 16/11/2026 — KIOKU V6 / Shelf Echo
 - [x] GitHub riêng: `dangvanhoang2004ct/kioku-east-archive`; dự án website ở `kioku-v4/`.
 - [x] PR #1 "KIOKU V6 — Shelf Echo redesign and collector UX" đã merge vào `main`; merge SHA **`d8299feb3813941200bb036be417785c31069f0f`** (đối chiếu GitHub).
