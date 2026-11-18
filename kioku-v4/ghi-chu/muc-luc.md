@@ -6,3 +6,5 @@
 - `../design-rule.md` — **Quy chuẩn thiết kế chính thức riêng Kioku**, văn hóa Nhật đương đại, Huashu/EvondevKit, chống AI slop.
 - `../README.md` — Cấu trúc V6, bảy trang và các lệnh build/QA.
 - `../brand/` — Logo Shelf Echo, wordmark, favicon và các biến thể SVG đã có.
+
+- `../../AGENTS.md` — Quy tắc clean-code, vai trò Codex/Antigravity và checklist nghiệm thu P0–P5; ưu tiên khi refactor mã nguồn.
