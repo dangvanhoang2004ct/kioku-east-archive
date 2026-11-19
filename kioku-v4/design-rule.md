@@ -66,3 +66,50 @@ Tệp này chỉ nằm ở `kioku-v4/design-rule.md`. **Không copy/sync/ghi đ�
 - Người dùng đã đưa artwork tham chiếu có rồng xanh thân dài, đầu có sừng/râu, bụng sáng phân đốt, uốn qua chữ KIOKU. **Đó là hình ảnh nhận diện cần hiển thị trên Home**, không chỉ bản mesh procedural WebGL.
 - Home giữ mô hình 3D đã duyệt làm hiệu ứng nền, nhưng logo/rồng nguyên bản từ tờ mẫu nằm trên lớp foreground. Có thể dùng bản SVG truy nét từ ảnh gốc ở `assets/img/kioku-owner-dragon-logo.svg`; bản truy nét có giảm chi tiết màu so với source, không được nhận là file vector gốc của tác giả.
 - Đảm bảo màu chữ logo navy đọc rõ trên nền giấy sáng. Không thay artwork thương hiệu bằng ảnh AI tạo mới hoặc các con rồng khác. Nếu có file vector gốc chất lượng cao, ưu tiên thay thế đúng asset này sau khi được chủ thương hiệu phê duyệt.
+
+## 11. Đính chính ưu tiên cao — hình rồng phải là kết cấu của mô hình chuyển động
+- Mô hình **một rồng duy nhất**: rồng xanh trong mẫu của chủ thương hiệu phải tham gia chuyển động 3D; **không** tách SVG/logo tĩnh thành một rồng và dựng thêm rồng 3D khác đằng sau.
+- Hình vẽ nguồn là texture của một lưới WebGL chuyển động theo sóng thân–đuôi (đầu gần ổn định). Chữ KIOKU có thể đứng yên trong cùng sân khấu, miễn là không tạo hai con rồng.
+- Giữ nhận diện hình dáng đầu, sừng/râu, lớp bụng sáng, phối màu xanh; không tự tạo lại rồng bằng ảnh sinh AI. Không phóng đại WebGL textured surface thành rigged mesh 3D hoàn chỉnh.
+- Hoạt ảnh phải có `prefers-reduced-motion` và fallback tĩnh khi GPU/WebGL lỗi. Không thể coi Cloudflare build success là bằng chứng hoạt ảnh render thành công.
+
+## 12. Mobile UX, animation control and Blender upgrade
+- On 390×844 mobile, primary Collection CTA belongs in the **first screen** immediately below the shortened hero, not below all introduction copy. Avoid duplicate visible CTAs.
+- Animated dragon must have functional Pause/Play control, button state/accessibility labels and static fallback when WebGL is unsupported. Respect `prefers-reduced-motion` even when the setting changes at runtime.
+- Smooth motion via time-based interpolation, conservative grid resolution/DPR and gentle body-wave amplitude. Do not replace the approved blue dragon with a second decorative dragon.
+- Blender direction is future **full volumetric** modeling/rigging from the original artwork, distinct from the current 2.5D textured WebGL surface. Preserve original face, horns/whiskers, belly plates and silhouette; use bone weights and export compact `.glb` with one idle animation only after visual approval. Never claim an image alone is a full rigged 3D model.
+
+## 13. Yêu cầu mới: rồng KIOKU phải có thể xoay toàn bộ không gian 3D
+- PR #5 là chuẩn tham chiếu **chuyển động và hình dáng ban đầu**, không phải mô hình 3D đầy đủ. Không gọi texture surface của PR #5 là full 3D.
+- Đầu ra mục tiêu: **một mô hình 3D khối có armature**, trong đó thân, đầu, sừng, râu, chân và đuôi có hình học 3D; có thể xoay quanh mô hình để thấy cạnh và lưng.
+- Bản prototype GLB procedural chỉ là bước kỹ thuật; yêu cầu mỹ thuật vẫn phải giữ linh vật rồng xanh gốc, chất liệu xanh navy / băng, tỉ lệ đầu, vảy và bụng có phân đốt. Mô hình thô không được mặc định coi là final.
+- Dùng Blender để sculpt/refine và kiểm tra weight-paint, xuất GLB khi có Blender thực tế. Giữ 1 rồng duy nhất, pause/play và `prefers-reduced-motion`, fallback minh họa gốc khi GPU lỗi, UX Collection trên mobile.
+- Chỉ đưa Production sau khi kiểm tra thực tế Safari/Chromium của mô hình đúng được duyệt; không merge chỉ dựa vào compile / Preview deploy.
+
+## 14. River Guardian source-first Blender workflow (approved 17/11/2026)
+- KIOKU source of truth for actual 3D is the **owner-provided** `KIOKU-River-Guardian-Blender.blend` with 10-bone, 6-second swimming animation; the matching Blender-compatible GLB has **six** materials/mesh primitives. Never replace it with the old 11-bone/8-second ChatGPT prototype.
+- Preserve the owner's exact source file untouched. Blender enhancements must be saved as a **separate .blend**, with a review GLB, and cannot be called tested unless run in Blender 5.3 on their Mac.
+- The web-side GLB may polish materials and lighting without rewriting the geometry or rig. Always support multi-material primitives and 10 bones, pause, reduced-motion, GPU fallback and keyboard/pointer orbit.
+- Only one animated dragon; the illustrated KIOKU still is a fallback when no GPU or reduced motion. Do not insert a second decorative dragon.
+- Production gate: genuine GPU Safari/WebKit/Chromium render, real rig deformation at different angles, mobile Collection CTA above fold, and owner's final visual approval.
+
+## 15. River Guardian V4: one rigged dragon and strict likeness gate
+- One skinned 3D dragon only; whiskers, mane, scale plates and claws must carry proper joint weights. Do not overlay a second static dragon.
+- Owner-approved shape direction: narrow expressive head and eyes, backward swept horns/mane, navy/teal palette, pale segmented underbelly and elegant S-curve. Avoid red cartoon eyes, bronze straight horns, repeated hard spikes and blocky limbs.
+- V4 is a review iteration with measurable articulation gains, NOT final likeness. Original .blend source remains unchanged; future hand-sculpt work must save a separate file.
+- Keep 10-joint, 6-material, 6-second GLB, pause/play on skeletal timer, reduced-motion fallback, mobile Collection CTA.
+- Production is blocked until model has been visually approved from side, three-quarter, near-front, overhead and during actual GPU animation on real Safari/Chromium.
+
+
+## 16. River Guardian V5 — fix dorsal hump, preview-only
+- Use `kioku-river-guardian-v5-backfix-review.glb` only on a dedicated review branch; PR #8 V4 remains the safe comparison baseline. Keep a single volumetric dragon and the approved original logo as static fallback.
+- V5 repositions the original 10-joint rest spine and retargets bind matrices, skinned vertex heights, normals, and nine 6-second rotation tracks. The middle body should visibly articulate, with a calmer tail rather than a fixed hump or exaggerated whip.
+- Preserve pointer/keyboard orbit, Pause/Play, reduced-motion fallback, mobile Collection first-screen CTA, and 7-page collector functionality.
+- Production gate: approve silhouette and joint articulation after genuine GPU Safari/Chromium QA; do not merge for a successful static build alone.
+
+
+## 17. River Guardian V6 Longform — Preview-only
+- Preserve owner's original blue river-dragon artwork as visual target. Current V6 is a refined 3D derivative of the existing V5 rig, not a new dragon and not an approved final likeness.
+- Long body/neck and tapered torso: keep 10-bone 6-second armature animation, six material primitives, 9 rotation tracks, subtle face/antler/whisker detail and retained original illustration fallback.
+- On web, V6 length needs a larger camera frame than V5: horizontal framing 16.0 desktop / 16.5 mobile, centered around x=-1.94. Recheck heads/tails and mobile CTA during actual browser GPU QA.
+- Do not merge to main/Production until visual likeness, Safari/Chromium real GPU motion, Pause/Play, orbit, fallback and responsive behavior are approved.

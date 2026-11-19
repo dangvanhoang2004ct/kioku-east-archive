@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>Collection | KIOKU</title>
+    <meta name="description" content="Browse Japanese maker and figure-line references, save lines, compare up to three, and share filters.">
+    <link rel="icon" href="./brand/kioku-favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./assets/site.css">
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <kioku-include name="site-header"></kioku-include>
+    <main id="main">
+      <div class="shell">
+        <div class="breadcrumb"><a href="./index.html">Home</a> / Collection</div>
+        <section class="page-heading"><span class="section-eyebrow tiny">REFERENCE LIBRARY</span>
+          <h1>Collection</h1>
+          <p>Browse Japanese maker and figure-line references. Save lines, compare up to three, or share your filters. These are catalogue entries, not physical items or sale listings.</p>
+        </section>
+        <div class="catalog-layout"><details class="filters-side filter-disclosure" open><summary>Filters <span class="active-filter-count" data-filter-count="0">0 active</span></summary>
+          <aside aria-label="Collection filters">
+            <h2 class="visually-hidden">Collection filters</h2>
+            <div class="filter-group"><label for="maker">Maker</label><select data-maker id="maker"><option value="">All makers</option><option value="Bandai Spirits">Bandai Spirits</option><option value="MegaHouse">MegaHouse</option></select>
+            </div>
+            <div class="filter-group"><label for="series">Figure line</label><select data-line id="series"><option value="">All lines</option></select>
+            </div>
+            <div class="filter-group"><label>Saved references</label>
+              <div class="filter-row"><button aria-pressed="false" data-saved-filter type="button">Show saved only</button>
+              </div>
+            </div>
+            <div class="filter-group"><button class="reset" data-reset type="button">Clear filters</button>
+            </div>
+          </aside>
+          </details>
+          <section class="catalog-main" aria-label="Figure line index">
+            <div class="catalog-toolbar"><label class="visually-hidden" for="catalog-search">Search references</label><input autocomplete="off" data-search id="catalog-search" placeholder="Search maker or figure line" type="search"><label class="visually-hidden" for="catalog-sort">Sort references</label><select data-sort id="catalog-sort"><option value="featured">Curated order</option><option value="az">Name A–Z</option><option value="za">Name Z–A</option></select><button aria-label="Copy current catalogue filters" class="share-search" data-share-search type="button">Share filters</button>
+            </div>
+            <div class="catalog-status"><span aria-live="polite" data-count>6 reference entries</span><span>Maker-line references · no physical items documented</span>
+            </div>
+            <div class="catalog-grid" data-grid></div>
+          </section>
+        </div>
+      </div>
+      <div class="compare-bar" data-compare-bar hidden>
+        <div class="shell compare-bar-inner">
+          <div><strong data-compare-count aria-live="polite">0 reference lines selected</strong><span>Compare up to three references</span>
+          </div>
+          <div>
+            <p class="compare-feedback" data-compare-feedback role="status" aria-live="polite"></p>
+            <button class="compare-clear" data-clear-compare type="button">Clear</button><button class="btn" data-open-compare type="button">Compare</button>
+          </div>
+        </div>
+      </div>
+      <dialog aria-label="Compare figure lines" class="compare-dialog" data-compare-dialog>
+        <div class="compare-dialog-inner">
+          <div class="compare-head">
+            <h2>Compare figure lines</h2>
+            <button data-close-compare type="button">Close</button>
+          </div>
+          <div data-compare-content></div>
+        </div>
+      </dialog>
+    </main>
+    <kioku-include name="site-footer"></kioku-include>
+    <kioku-include name="search-dialog"></kioku-include>
+    <script type="module" src="./features/shared/site.js"></script>
+    <script type="module" src="./features/storefront/catalog.js"></script>
+  </body>
+</html>
