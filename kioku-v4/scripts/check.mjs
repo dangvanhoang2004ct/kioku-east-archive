@@ -8,7 +8,7 @@ const hasRulebook=existsSync(join(root,'design-rule.md'))&&existsSync(join(root,
 if(existsSync(join(root,'design-rule.md'))&&existsSync(join(root,'design-rules.md'))){for(const marker of ['# KIOKU · Art direction & interface design rules','## 8. Daily anti-AI-slop veto','## 10. Japanese anime-figure focus','## Project isolation — do not merge with Momo Matcha'])if(!rules.includes(marker))throw Error('Kioku rulebook identity check failed: '+marker);}
 if(/# DESIGN RULES [—-] MOMO MATCHA|momo-logo-(green|cream)|Sapo FnB PRO|Matcha Latte/i.test(rules))throw Error('Kioku rulebook appears overwritten by Momo design rules');
 if(existsSync(join(root,'design-rule.md'))&&existsSync(join(root,'design-rules.md'))&&!pointer.includes('](design-rule.md)'))throw Error('Kioku design-rules.md must redirect to canonical design-rule.md');
-const scripts=['data/browser-storage.js','features/shared/site.js','features/shared/dragon-scene.js','features/shared/dragon-glb-scene.js','features/catalog/records.js','features/storefront/favorites.js','features/storefront/compare.js','features/storefront/catalog.js','features/storefront/detail.js','features/discovery/finder.js','features/condition/notes.js'];
+const scripts=['data/browser-storage.js','data/dragon-glb.js','features/shared/site.js','features/shared/dragon-scene.js','features/shared/dragon-glb-scene.js','features/catalog/records.js','features/storefront/favorites.js','features/storefront/compare.js','features/storefront/catalog.js','features/storefront/detail.js','features/discovery/finder.js','features/condition/notes.js'];
 const required=[...pages.map(page=>'pages/'+page),...scripts,'assets/models/kioku-river-guardian-v6-longform.glb','assets/site.css','assets/img/kioku-dragon-flow.svg','assets/img/kioku-dragon-still.svg','assets/img/kioku-owner-dragon-logo.svg','assets/img/kioku-owner-dragon-surface.svg','assets/img/kioku-owner-dragon-texture.webp','assets/img/kioku-owner-wordmark-only.svg','assets/img/kioku-owner-logo-stage-still.svg','brand/kioku-favicon.svg','brand/kioku-lockup.svg','brand/kioku-lockup-light.svg','brand/kioku-mark.svg','features/inventory/verified-items.json'];
 for(const f of required)if(!existsSync(join(root,f)))throw Error('Missing project file: '+f);
 for(const page of pages){const html=readPageSource(page);if(!html.includes('<html lang="en">'))throw Error('Not English: '+page);if(!html.includes('id="main"'))throw Error('Missing main landmark: '+page);if(!html.includes('data-search-dialog'))throw Error('Missing site-wide search: '+page);const ids=new Set([...html.matchAll(/\bid="([^"]+)"/g)].map(x=>x[1]));for(const [,id] of html.matchAll(/\bhref="#([^" ]+)"/g))if(!ids.has(id))throw Error('Broken anchor: '+page+'#'+id);
@@ -19,6 +19,7 @@ if(/momo-matcha|sapo fnb|matcha latte/i.test(html))throw Error('Project design c
 for(const f of scripts)execFileSync(process.execPath,['--check',join(root,f)]);
 execFileSync(process.execPath,[join(root,'scripts/validate-inventory.mjs')]);
 execFileSync(process.execPath,[join(root,'scripts/validate-rig.mjs')]);
+execFileSync(process.execPath,[join(root,'tests/dragon-motion.mjs')],{stdio:'inherit'});
 const css=content('assets/site.css');
 if(!css.includes('kioku-dragon-flow.svg')||!css.includes('kioku-dragon-still.svg'))throw Error('Dragon motion or reduced-motion fallback not wired into Home');
 const home=readPageSource('index.html');if(!home.includes('data-dragon-scene')||!home.includes('hero-introduction'))throw Error('KIOKU Home immersive hero unavailable');
@@ -49,11 +50,13 @@ if(!home.includes('features/shared/dragon-glb-scene.js')||home.includes('<script
 if(!home.includes('tabindex="0"')||!home.includes('arrow keys to rotate'))
   throw Error('Keyboard-accessible model orbit missing');
 const rigScene=content('features/shared/dragon-glb-scene.js');
-for(const marker of ['kioku-river-guardian-v6-longform.glb','u_bones[10]','parseGLB(arrayBuffer)','uploadBones(t)',
+for(const marker of ['kioku-river-guardian-v6-longform.glb','u_bones[10]','parseGLB(buffer)','uploadBones(t)',
  'pointermove','keydown','Motion unavailable','prefers-reduced-motion',
- 'model.joints','six Blender material parts']) {
+ 'model.joints']) {
  if(!rigScene.includes(marker))throw Error('River Guardian renderer feature missing: '+marker);
 }
+const rigData=content('data/dragon-glb.js');
+if(!rigData.includes('six Blender material parts'))throw Error('River Guardian GLB parser lost material validation');
 if(rigScene.includes('u_bones[11]')||rigScene.includes('kioku-dragon-rig-v1.glb'))
  throw Error('Old 11-bone rig renderer is not compatible with owner-provided Blender file');
 if(!content('scripts/build.mjs').includes('assets/models/kioku-river-guardian-v6-longform.glb'))

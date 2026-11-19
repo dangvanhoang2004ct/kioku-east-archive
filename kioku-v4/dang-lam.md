@@ -6,7 +6,7 @@
 - **P1 — DONE:** Bảy entry HTML nằm trong `pages/`; build vẫn xuất đúng bảy route public vào gốc `dist/`.
 - **P2 — DONE:** Header, footer, search dialog dùng chung từ `components/`; `data/` đọc template và xử lý lưu cục bộ. Các module nghiệp vụ vẫn ở `features/`. Các tệp mã nguồn sửa mới đều dưới 300 dòng. Renderer GLB legacy 327 dòng để nguyên.
 - **P3 — PASS cục bộ:** `npm test`, `npm run build`, `npm run preview`; cả bảy HTML chỉ đổi định dạng khoảng trắng, 23 tệp đầu ra trùng từng byte. 14 kịch bản Favorites/Compare khớp bản cũ, gồm giới hạn ba mục và fallback khi storage bị chặn. GLB trùng SHA-256, validator qua 10 xương, 6 vật liệu và hoạt ảnh 6 giây.
-- **P4 — BLOCKED:** Đã đối chiếu diff và kiểm tra cú pháp cả bảy trang standalone. Chromium/WebKit chưa chạy được trong môi trường hiện tại. Chưa nghiệm thu GPU, Pause/Play và orbit ở 390×844/1440.
+- **P4 — IN PROGRESS:** QA được báo cáo cho head `68d0052`: Chromium SwiftShader 390×844 và 1440×844 qua render, Pause/Play, orbit và fallback, nhưng bật reduced motion sau khi mở trang vẫn để trạng thái animated và nút bật. Renderer hiện đồng bộ media preference từ event và RAF, có test Node cho event muộn, listener legacy, bật/tắt và WebGL không khả dụng. Chờ chạy lại Chromium/Safari và GPU vật lý trên bản sửa.
 - **P5 — NOT STARTED:** Draft PR refactor trên nhánh quy tắc #15. Chờ QA trình duyệt và duyệt phát hành V7. Chưa merge hoặc triển khai Cloudflare. KIOKU Bridge tiếp tục read-only.
 
 ## Checkpoint xác minh: 16/11/2026 — KIOKU V6 / Shelf Echo
