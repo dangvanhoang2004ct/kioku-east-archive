@@ -1,9 +1,13 @@
 # KIOKU — Việc đang làm
 
-## 19/11/2026 — KIOKU clean architecture (khởi động, chưa sửa runtime)
-- [x] Đã chốt quy tắc refactor cho 7 trang nguồn riêng trong pages/, UI dùng chung ở components/, đọc/ghi dữ liệu ở data/, một trách nhiệm/tệp, tối đa 300 dòng cho mã nguồn tự viết được tạo/sửa, kiểm tra chức năng cũ trước khi thêm mới. Quy tắc chuẩn tại root AGENTS.md trên nhánh refactor/kioku-clean-architecture-rules-20261119, tách từ V7 PR #10.
-- [ ] Chờ Antigravity kiểm kê kiến trúc P0 (read_only) và Codex Web đối chiếu; chưa chuyển page/JS, chưa sửa renderer/GLB, chưa kiểm thử hay deploy.
-- [ ] Sau P0, chỉ triển khai incremental trên nhánh V7 riêng khi chủ dự án và người vận hành Mac đã bật quyền sửa phù hợp; Codex review PR/QA theo P0–P5, không merge hoặc đưa Production khi chưa được duyệt.
+## 19/11/2026 — KIOKU V7 clean architecture
+
+- **P0 — DONE:** Đã chốt baseline từ PR #15 ở `8c44f95`, trên nhánh V7 PR #10. Build đọc bảy HTML nguồn, dùng chung header/footer/search. Favorites và Compare cùng sử dụng localStorage với dự phòng cho standalone preview.
+- **P1 — DONE:** Bảy entry HTML nằm trong `pages/`; build vẫn xuất đúng bảy route public vào gốc `dist/`.
+- **P2 — DONE:** Header, footer, search dialog dùng chung từ `components/`; `data/` đọc template và xử lý lưu cục bộ. Các module nghiệp vụ vẫn ở `features/`. Các tệp mã nguồn sửa mới đều dưới 300 dòng. Renderer GLB legacy 327 dòng để nguyên.
+- **P3 — PASS cục bộ:** `npm test`, `npm run build`, `npm run preview`; cả bảy HTML chỉ đổi định dạng khoảng trắng, 23 tệp đầu ra trùng từng byte. 14 kịch bản Favorites/Compare khớp bản cũ, gồm giới hạn ba mục và fallback khi storage bị chặn. GLB trùng SHA-256, validator qua 10 xương, 6 vật liệu và hoạt ảnh 6 giây.
+- **P4 — BLOCKED:** Đã đối chiếu diff và kiểm tra cú pháp cả bảy trang standalone. Chromium/WebKit chưa chạy được trong môi trường hiện tại. Chưa nghiệm thu GPU, Pause/Play và orbit ở 390×844/1440.
+- **P5 — NOT STARTED:** Draft PR refactor trên nhánh quy tắc #15. Chờ QA trình duyệt và duyệt phát hành V7. Chưa merge hoặc triển khai Cloudflare. KIOKU Bridge tiếp tục read-only.
 
 ## Checkpoint xác minh: 16/11/2026 — KIOKU V6 / Shelf Echo
 - [x] GitHub riêng: `dangvanhoang2004ct/kioku-east-archive`; dự án website ở `kioku-v4/`.

@@ -1,11 +1,12 @@
 from pathlib import Path
-import json,base64,re
+import json,base64,re,subprocess
 root=Path(__file__).resolve().parent.parent
+subprocess.run(['node', 'scripts/build.mjs'], cwd=root, check=True)
 pages=['index','collection','finder','work','condition-guide','journal','about']
 css=(root/'assets/site.css').read_text()
 css=re.sub(r'@import[^\n]*\n','',css)
 files={n:(root/n).read_text() for n in [
- 'features/storefront/favorites.js','features/catalog/records.js','features/shared/site.js',
+ 'data/browser-storage.js','features/storefront/favorites.js','features/catalog/records.js','features/shared/site.js',
  'features/storefront/compare.js','features/storefront/catalog.js','features/storefront/detail.js',
  'features/discovery/finder.js','features/condition/notes.js']}
 
@@ -16,7 +17,7 @@ def src_data(s):
  return s
 
 def combined_js(page):
- names=['features/storefront/favorites.js','features/catalog/records.js','features/shared/site.js']
+ names=['data/browser-storage.js','features/storefront/favorites.js','features/catalog/records.js','features/shared/site.js']
  if page=='collection':names.extend(['features/storefront/compare.js','features/storefront/catalog.js'])
  if page=='finder':names.append('features/discovery/finder.js')
  if page=='work':names.append('features/storefront/detail.js')
@@ -26,7 +27,7 @@ def combined_js(page):
  return src_data(js)
 
 def page_html(page):
- s=(root/(page+'.html')).read_text()
+ s=(root/'dist'/(page+'.html')).read_text()
  s=re.sub(r'<link[^>]*rel="stylesheet"[^>]*>','',s)
  s=re.sub(r'<script type="module"[^>]*></script>','',s)
  for directory,prefix,suffix,mime in [(root/'assets/img','./assets/img/','*.webp','image/webp'),(root/'assets/img','./assets/img/','*.svg','image/svg+xml'),(root/'assets/icons','./assets/icons/','*.svg','image/svg+xml'),(root/'brand','./brand/','*.svg','image/svg+xml')]:

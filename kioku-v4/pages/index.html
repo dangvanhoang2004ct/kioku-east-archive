@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <title>KIOKU — Japanese Figure Reference Archive | KIOKU</title>
+    <meta name="description" content="Explore Japanese anime figure lines, collector tools, and practical condition guidance.">
+    <link rel="icon" href="./brand/kioku-favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./assets/site.css">
+  </head>
+  <body class="home">
+    <a class="skip" href="#main">Skip to content</a>
+    <kioku-include name="site-header"></kioku-include>
+    <main id="main">
+      <section class="hero hero--immersive" aria-labelledby="home-intro-title">
+        <div class="hero-stage" aria-label="KIOKU animated blue dragon and wordmark">
+          <div class="hero-stage-ambient" aria-hidden="true"></div>
+          <div class="hero-dragon" role="img" aria-label="Animated three-dimensional blue KIOKU dragon with its wordmark" data-dragon-scene>
+            <img class="hero-dragon-fallback" src="./assets/img/kioku-owner-logo-stage-still.svg" width="680" height="266" alt="" aria-hidden="true">
+            <img class="hero-dragon-wordmark" src="./assets/img/kioku-owner-wordmark-only.svg" width="680" height="266" alt="" aria-hidden="true">
+            <canvas id="kioku-dragon-canvas" tabindex="0" role="application" aria-label="Rotatable 3D KIOKU dragon. Drag or use arrow keys to rotate and explore different angles." data-dragon-canvas></canvas>
+          </div>
+          <button class="hero-motion-toggle" type="button" data-dragon-motion-toggle aria-controls="kioku-dragon-canvas" aria-pressed="false" disabled>Motion unavailable</button>
+          <a class="hero-scroll-cue" href="#home-intro-title">Discover KIOKU <span aria-hidden="true">↓</span></a>
+        </div>
+        <div class="hero-mobile-entry shell"><a class="btn" href="./collection.html">Explore the collection <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="hero-introduction shell">
+          <div class="hero-intro-title">
+            <span class="section-eyebrow tiny">KIOKU · INDEPENDENT FIGURE REFERENCE ARCHIVE</span>
+            <h1 id="home-intro-title">The figures<br>we <em>remember.</em>
+            </h1>
+          </div>
+          <div class="hero-intro-details">
+            <p class="lead">A considered archive of Japanese figure lines, collector discoveries and the details worth remembering.</p>
+            <p class="hero-intro-note">Explore references, keep your favourites and understand condition. This is a reference collection, not a live stock list.</p>
+            <div class="hero-actions"><a class="btn" href="./collection.html">Explore the collection <span aria-hidden="true">↗</span></a><a class="text-link" href="./finder.html">Find your figure line</a>
+            </div>
+          </div>
+        </div>
+      </section>
+      <div class="shell">
+        <section class="makers" aria-labelledby="makers-title">
+          <div class="section-head">
+            <div><span class="section-eyebrow tiny">START WITH A MAKER</span>
+              <h2 class="section-title" id="makers-title">Browse the reference index</h2>
+            </div>
+            <p class="section-copy">These entries describe figure lines, not individual items for sale.</p>
+          </div>
+          <div class="maker-layout"><a class="maker" href="./collection.html?maker=Bandai%20Spirits"><strong class="maker-mark">Bandai Spirits</strong>
+            <div class="maker-caption">
+              <p>Prize and display figure lines</p>
+              <strong>3 figure lines</strong>
+            </div>
+            <span class="maker-chevron" aria-hidden="true">→</span></a><a class="maker" href="./collection.html?maker=MegaHouse"><strong class="maker-mark">MegaHouse</strong>
+            <div class="maker-caption">
+              <p>Portrait, character, and desk-scale lines</p>
+              <strong>3 figure lines</strong>
+            </div>
+            <span class="maker-chevron" aria-hidden="true">→</span></a>
+          </div>
+        </section>
+        <section class="features" aria-label="Collector tools">
+          <div class="feature-grid"><a class="feature-card" href="./finder.html">
+            <div class="feature-caption">
+              <div><strong>Figure Finder</strong><small>Three questions, then up to three references to explore.</small>
+              </div>
+              <span class="arrow" aria-hidden="true">↗</span>
+            </div>
+            </a><a class="feature-card" href="./condition-guide.html">
+            <div class="feature-caption">
+              <div><strong>Condition Guide</strong><small>A practical checklist for a specific pre-owned figure.</small>
+              </div>
+              <span class="arrow" aria-hidden="true">↗</span>
+            </div>
+            </a>
+          </div>
+          <p class="concept-notice">Reference catalogue only. KIOKU has no verified item stock, prices, or checkout.</p>
+        </section>
+      </div>
+    </main>
+    <kioku-include name="site-footer"></kioku-include>
+    <kioku-include name="search-dialog"></kioku-include>
+    <script type="module" src="./features/shared/site.js"></script>
+    <script defer src="./features/shared/dragon-glb-scene.js"></script>
+  </body>
+</html>
