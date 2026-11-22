@@ -315,7 +315,7 @@ void main() {
   });
   canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();fallback('WebGL context lost');});
   if(reduced.matches){root.dataset.dragonState='fallback';setToggle('Motion reduced',true);}
-  fetch('./assets/models/kioku-river-guardian-v2.glb')
+  fetch('./assets/models/kioku-river-guardian-v4-review.glb')
     .then(r=>{if(!r.ok)throw new Error('Model HTTP '+r.status);return r.arrayBuffer();})
     .then(buffer=>{
       const data=parseGLB(buffer);

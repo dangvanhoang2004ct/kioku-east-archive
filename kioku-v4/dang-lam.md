@@ -101,3 +101,19 @@ Chỉ sửa repository Kioku. Không ghi đè mã, quy tắc, tài sản hoặc 
 - [x] Node mock WebGL thử đủ 6 draw calls, 10 bone matrices, Pause/Play, reduced-motion và fallback thiếu GPU: PASS. Kiểm tra GLB bằng Python và Node: PASS.
 - [ ] Chưa xác minh GPU thực tế trên Safari hoặc Chromium, cũng chưa chạy script Blender hoặc chỉnh model thủ công trong giao diện Blender; **không tuyên bố đã sculpt, weight-paint hay xuất bằng Blender từ container**.
 - [ ] Nhánh River Guardian V2 để Preview/Draft; giữ main/Production và PR #5/#6 không merge khi chưa có hình ảnh GPU thực và người dùng phê duyệt.
+
+## River Guardian V4 review — 18/11/2026
+- User feedback: V3 still falls short of the original KIOKU blue-dragon illustration; continue improving the existing rigged model.
+- Implemented V4 Preview GLB based on uploaded V3: one skinned mesh, 10 bones, 6 materials, 9 rotation tracks, 6-second seamless swim.
+- Visual changes: removed duplicate V3 horns/whiskers, added layered navy/teal mane, narrow brow/eyes, sparse skinned flank details, slim nose, tail streamers and claws; no separate dragon.
+- Motion QA (CPU, at 1.5s relative to t0): mid-body V3 0.0523 units -> V4 0.1198; tail V3 0.9342 -> V4 1.712. It is animated bone deformation, not camera orbit alone.
+- Reverted floating belly seam experiment after inspecting QA views; model still requires hand-sculpt refinement of head, legs and scales.
+- Verified GLB container, 10 joints, 9 channels, 6 materials, 12,362 vertices and 20,064 triangles; CPU-projected five-view QA and 6s GIF generated, not GPU/browser render.
+- V4 generator and review report are committed; renderer/build/validator/check target the new GLB on a dedicated Preview branch.
+- Remaining: manual Blender 5.3 sculpt/weight-paint, visual likeness approval, Safari/Chromium GPU QA and accessibility controls. Never merge to Production without owner approval.
+
+## Codex Mac + Antigravity shared workspace — 18/11/2026
+- [x] Added repository-root `AGENTS.md` on V4 preview branch to share startup instructions, project rules, role split and Git/worktree safety. Google Antigravity and Codex both discover this filename.
+- [x] Existing `chatgpt.md`, `design-rule.md`, notes and Preview/Production gates are unchanged.
+- [ ] Local Mac connection is **not yet confirmed**: both applications must open the same local Git checkout / linked worktrees. The ChatGPT GitHub connector cannot open the user's Mac apps or change their GUI settings.
+- [ ] Project file search did not surface a specific uploaded Antigravity configuration; do not claim one was imported.
