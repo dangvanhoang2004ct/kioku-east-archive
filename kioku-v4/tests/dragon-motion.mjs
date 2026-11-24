@@ -1,152 +1,127 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import {
+  createDragonRealmState,
+  sampleRound35TransitionCurve,
+  JOURNEY_CYCLE_SECONDS,
+} from '../features/shared/dragon-realm-state.js';
 
-const model = await readFile(new URL('../assets/models/kioku-river-guardian-v6-longform.glb', import.meta.url));
-let instance = 0;
+// 1. Verify Round-35 E_TransitionAction.001 curve boundary & monotonicity
+const cStart = sampleRound35TransitionCurve(0);
+const cMid = sampleRound35TransitionCurve(0.5);
+const cEnd = sampleRound35TransitionCurve(1);
+assert.equal(cStart.state, 0.0);
+assert.equal(cStart.wet, 1.0);
+assert.ok(cMid.state > 0.4 && cMid.state < 0.8);
+assert.equal(cEnd.state, 1.0);
+assert.ok(Math.abs(cEnd.wet - 0.06) < 1e-5);
 
-async function bootScene({ reduced = false, legacy = false, webgl = true } = {}) {
-  const media = { matches: reduced };
-  const subscribed = legacy ? 'addListener' : 'addEventListener';
-  let mediaChange;
-  media[subscribed] = (...args) => { mediaChange = args.at(-1); };
+// 2. Verify full continuous Dual-Realm journey cycle:
+// Underwater -> Ascent -> Surface -> Transform -> Celestial Coral -> Descent -> Underwater
+const state = createDragonRealmState({ initialMode: 'journey', paused: false });
+const visitedPhases = new Set();
+const visitedClips = new Set();
+let minBlend = 1, maxBlend = 0;
 
-  const classes = new Set();
-  const events = new Map();
-  const canvasEvents = new Map();
-  const frames = new Map();
-  let frameId = 0;
-  let draws = 0;
-  const gl = new Proxy({
-    NO_ERROR: 0,
-    getError: () => 0,
-    drawElements: () => { draws += 1; },
-    getAttribLocation: () => 0,
-  }, { get: (target, key) => target[key] ?? (() => true) });
+for (let i = 0; i < 280; i++) {
+  const snap = state.step(JOURNEY_CYCLE_SECONDS / 260);
+  visitedPhases.add(snap.phaseName);
+  visitedClips.add(snap.activeClip);
+  minBlend = Math.min(minBlend, snap.realmBlend);
+  maxBlend = Math.max(maxBlend, snap.realmBlend);
+}
 
+for (const reqPhase of ['underwater', 'ascent', 'surface', 'transform', 'celestial', 'descent']) {
+  assert.ok(visitedPhases.has(reqPhase), 'Missing journey phase: ' + reqPhase);
+}
+for (const reqClip of ['SwimLoop', 'SurfaceCrossing', 'WaterToCoralTransform', 'CoralFlightLoop', 'CoralToWaterDescent']) {
+  assert.ok(visitedClips.has(reqClip), 'Missing skeletal clip trigger: ' + reqClip);
+}
+assert.ok(minBlend < 0.02, 'Water realmBlend should reach ~0');
+assert.ok(maxBlend > 0.98, 'Coral realmBlend should reach ~1');
+
+// 3. Verify manual Coral / Water override transitions smoothly without snapping
+state.setMode('water');
+for (let i = 0; i < 40; i++) state.step(0.05);
+assert.ok(state.getSnapshot().realmBlend < 0.02);
+
+state.setMode('coral');
+const firstStep = state.step(0.016);
+assert.ok(firstStep.realmBlend > 0 && firstStep.realmBlend < 0.5, 'Manual Coral switch must interpolate smoothly, not snap');
+for (let i = 0; i < 60; i++) state.step(0.05);
+assert.ok(state.getSnapshot().realmBlend > 0.98);
+assert.equal(state.getSnapshot().activeClip, 'CoralFlightLoop');
+
+// 4. Verify explicit Pause freezes journey progression
+state.setMode('journey');
+state.setPaused(true);
+const frozenA = state.step(0.016).phaseName;
+for (let i = 0; i < 50; i++) state.step(0.2);
+assert.equal(state.getSnapshot().phaseName, frozenA);
+assert.equal(state.getSnapshot().paused, true);
+
+// 5. Verify DOM fallback behavior for prefers-reduced-motion & unavailable WebGL
+let sceneSeq = 0;
+async function bootFallbackCheck({ reduced = false, webgl = false } = {}) {
+  let mediaListener = null;
+  const media = {
+    matches: reduced,
+    addEventListener: (_t, fn) => { mediaListener = fn; },
+  };
+  const classes = new Set(['is-ready']);
   const canvas = {
     clientWidth: 390,
     clientHeight: 320,
-    getContext: () => webgl ? gl : null,
-    addEventListener: (type, listener) => canvasEvents.set(type, listener),
+    getContext: () => (webgl ? {} : null),
+    addEventListener() {},
+    removeEventListener() {},
   };
   const root = {
     dataset: {},
-    querySelector: () => canvas,
-    classList: { add: value => classes.add(value), remove: value => classes.delete(value) },
+    clientWidth: 390,
+    clientHeight: 320,
+    closest: () => root,
+    querySelector: (sel) => (sel === '[data-dragon-canvas]' ? canvas : null),
+    classList: { add: (v) => classes.add(v), remove: (v) => classes.delete(v) },
   };
   const toggle = {
-    disabled: true,
-    textContent: 'Motion unavailable',
-    setAttribute: (key, value) => { toggle[key] = value; },
-    addEventListener: (type, listener) => events.set(type, listener),
+    disabled: false,
+    textContent: '',
+    setAttribute(k, v) { this[k] = v; },
+    addEventListener() {},
+    removeEventListener() {},
   };
-
+  globalThis.window = {
+    location: { protocol: 'https:' },
+    matchMedia: () => media,
+    addEventListener() {},
+    removeEventListener() {},
+  };
   globalThis.document = {
     hidden: false,
-    querySelector: selector => selector === '[data-dragon-scene]' ? root : toggle,
-    addEventListener() {},
+    createElement: () => canvas,
+    querySelector: (sel) => {
+      if (sel === '[data-dragon-scene]') return root;
+      if (sel === '[data-dragon-motion-toggle]') return toggle;
+      return null;
+    },
+    querySelectorAll: () => [],
   };
-  globalThis.window = { matchMedia: () => media };
-  globalThis.fetch = async () => ({
-    ok: true,
-    arrayBuffer: async () => model.buffer.slice(model.byteOffset, model.byteOffset + model.byteLength),
-  });
-  globalThis.requestAnimationFrame = callback => {
-    frames.set(++frameId, callback);
-    return frameId;
-  };
-  globalThis.cancelAnimationFrame = id => { frames.delete(id); };
-  await import('../features/shared/dragon-glb-scene.js?scene=' + ++instance);
-  if (webgl) {
-    for (let count = 0; count < 50 && !frames.size && !reduced; count++) {
-      await new Promise(resolve => setImmediate(resolve));
-    }
-  }
 
-  return {
-    root,
-    toggle,
-    classes,
-    frames,
-    get draws() { return draws; },
-    change(value, notify = true) {
-      media.matches = value;
-      if (notify) mediaChange?.();
-    },
-    async waitForFrame() {
-      for (let count = 0; count < 50 && !frames.size; count++) {
-        await new Promise(resolve => setImmediate(resolve));
-      }
-    },
-    drawFrame() {
-      const [id, callback] = frames.entries().next().value;
-      frames.delete(id);
-      callback(id * 16);
-    },
-    click: () => events.get('click')(),
-    loseContext: () => canvasEvents.get('webglcontextlost')({ preventDefault() {} }),
-  };
+  await import('../features/shared/dragon-glb-scene.js?check=' + ++sceneSeq);
+  return { root, toggle, classes, triggerReduced: () => { media.matches = true; mediaListener?.(); } };
 }
 
-function assertReduced(scene) {
-  assert.equal(scene.root.dataset.dragonState, 'fallback');
-  assert.equal(scene.classes.has('is-ready'), false);
-  assert.equal(scene.toggle.textContent, 'Motion reduced');
-  assert.equal(scene.toggle.disabled, true);
-  assert.equal(scene.toggle['aria-pressed'], 'false');
-  assert.equal(scene.frames.size, 0);
-}
+const red = await bootFallbackCheck({ reduced: true, webgl: true });
+assert.equal(red.root.dataset.dragonState, 'fallback');
+assert.equal(red.root.dataset.fallbackReason, 'reduced-motion');
+assert.equal(red.toggle.textContent, 'Motion reduced');
+assert.equal(red.toggle.disabled, true);
+assert.equal(red.classes.has('is-ready'), false);
 
-const delayed = await bootScene();
-delayed.drawFrame();
-const drawCount = delayed.draws;
-delayed.change(true, false);
-delayed.drawFrame();
-assertReduced(delayed);
-assert.equal(delayed.draws, drawCount);
-delayed.change(false);
-delayed.drawFrame();
-assert.equal(delayed.root.dataset.dragonState, 'animated');
+const noGl = await bootFallbackCheck({ reduced: false, webgl: false });
+assert.equal(noGl.root.dataset.dragonState, 'fallback');
+assert.equal(noGl.root.dataset.fallbackReason, 'webgl-unavailable');
+assert.equal(noGl.toggle.textContent, 'Motion unavailable');
+assert.equal(noGl.toggle.disabled, true);
 
-for (const legacy of [false, true]) {
-  const scene = await bootScene({ legacy });
-  scene.drawFrame();
-  assert.equal(scene.root.dataset.dragonState, 'animated');
-  const draws = scene.draws;
-  scene.change(true);
-  assertReduced(scene);
-  scene.change(false);
-  assert.equal(scene.toggle.disabled, true);
-  scene.drawFrame();
-  assert.equal(scene.root.dataset.dragonState, 'animated');
-  assert.equal(scene.toggle.textContent, 'Pause motion');
-  assert.equal(scene.toggle.disabled, false);
-  assert.ok(scene.draws > draws);
-
-  scene.click();
-  assert.equal(scene.root.dataset.dragonState, 'paused');
-  assert.equal(scene.toggle['aria-pressed'], 'true');
-  assert.equal(scene.frames.size, 0);
-  scene.change(true);
-  assertReduced(scene);
-
-  scene.loseContext();
-  scene.change(false);
-  scene.change(true);
-  assert.equal(scene.toggle.textContent, 'Motion unavailable');
-  assert.equal(scene.frames.size, 0);
-}
-
-const initial = await bootScene({ reduced: true });
-assertReduced(initial);
-initial.change(false);
-await initial.waitForFrame();
-initial.drawFrame();
-assert.equal(initial.root.dataset.dragonState, 'animated');
-
-const unsupported = await bootScene({ webgl: false });
-assert.equal(unsupported.root.dataset.dragonState, 'fallback');
-assert.equal(unsupported.toggle.disabled, true);
-assert.equal(unsupported.toggle.textContent, 'Motion unavailable');
-
-console.log('PASS: River Guardian motion preference changes, delayed/legacy events, and unavailable WebGL');
+console.log('PASS: Round-35 Dual-Realm journey, transition spline, manual override, pause precedence, and fallbacks.');

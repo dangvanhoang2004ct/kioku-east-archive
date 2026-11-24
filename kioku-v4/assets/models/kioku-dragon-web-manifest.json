@@ -1,0 +1,55 @@
+{
+  "assetId": "kioku-round35-dragon-web",
+  "sourceMasterBlend": "/Users/dangvanhoang/Documents/kioku-east-archive-main/KIOKU-Creature-Studio/assets/round-35/KIOKU-Dragon-Rebuild.blend",
+  "sourceMasterSha256": "b766630dabd090fd9db09becb729a5d2bc269c60bd1652334e86cee0ccfecea7",
+  "derivativeBlend": "/Users/dangvanhoang/Documents/kioku-east-archive-main/KIOKU-Creature-Studio/assets/web-round35/KIOKU-Dragon-Web-Derivative.blend",
+  "glbPath": "./assets/models/KIOKU-Dragon-Web.glb",
+  "glbBytes": 19937724,
+  "deformBoneCount": 74,
+  "meshCount": 14,
+  "vertexCount": 192263,
+  "polygonCount": 266130,
+  "clips": [
+    {
+      "name": "SwimLoop",
+      "frames": 35,
+      "fps": 24,
+      "durationSec": 1.4167
+    },
+    {
+      "name": "SurfaceCrossing",
+      "frames": 25,
+      "fps": 24,
+      "durationSec": 1.0
+    },
+    {
+      "name": "WaterToCoralTransform",
+      "frames": 36,
+      "fps": 24,
+      "durationSec": 1.4583
+    },
+    {
+      "name": "CoralFlightLoop",
+      "frames": 36,
+      "fps": 24,
+      "durationSec": 1.4583
+    },
+    {
+      "name": "CoralToWaterDescent",
+      "frames": 29,
+      "fps": 24,
+      "durationSec": 1.1667
+    }
+  ],
+  "coralTextures": {
+    "MAT_Web_Skin": "./assets/models/textures/skin_coral_base.webp",
+    "MAT_Web_Jaw": "./assets/models/textures/jaw_coral_base.webp",
+    "MAT_Web_Ventral": "./assets/models/textures/ventral_coral_base.webp",
+    "MAT_Web_Claw": "./assets/models/textures/claw_coral_base.webp",
+    "MAT_Web_Tuft": "./assets/models/textures/tuft_coral_base.webp"
+  },
+  "fallbacks": {
+    "water": "./assets/models/kioku-dragon-round35-water-fallback.webp",
+    "coral": "./assets/models/kioku-dragon-round35-coral-fallback.webp"
+  }
+}

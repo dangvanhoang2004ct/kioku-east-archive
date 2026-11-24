@@ -1,288 +1,298 @@
-/* KIOKU River Guardian — one volumetric, skinned GLB from the owner's Blender project.
- * WebGL1, no CDN; supports the real 10-bone, 6-material, 6-second asset.
- * 2.5D PR #5 logo is a STATIC FALLBACK only, never a second animated dragon.
- */
+// KIOKU Home Hero — Round-35 Real-Time Three.js Dual-Realm Dragon Scene
 (() => {
-  'use strict';
-  const root = document.querySelector('[data-dragon-scene]');
-  const canvas = root?.querySelector('[data-dragon-canvas]');
-  const toggle = document.querySelector('[data-dragon-motion-toggle]');
-  if (!root || !canvas) return;
+  const sceneRoot = document.querySelector('[data-dragon-scene]');
+  const stage = sceneRoot?.closest('.hero-stage') || sceneRoot;
+  const canvas = sceneRoot ? sceneRoot.querySelector('[data-dragon-canvas]') : null;
+  if (!sceneRoot || !canvas) return;
 
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-  let paused = false, ready = false, visible = true, running = true;
-  let frame = 0, elapsed = 0, lastFrame = 0, shown = false;
-  let dragging = false, previousX = 0, previousY = 0;
-  let targetYaw = -0.11, targetPitch = 0.035, yaw = targetYaw, pitch = targetPitch;
-  let gl;
-  const setToggle = (label, disabled) => {
-    if (!toggle) return;
-    toggle.textContent = label;
-    toggle.disabled = disabled;
-    toggle.setAttribute('aria-pressed', String(paused));
+  const toggleBtn = document.querySelector('[data-dragon-motion-toggle]');
+  const resetBtn = document.querySelector('[data-dragon-reset]');
+  const statusEl = document.querySelector('[data-realm-status]');
+  const realmBtns = Array.from(document.querySelectorAll('[data-realm-select]'));
+  const fallbackImg = sceneRoot.querySelector('[data-dragon-fallback-img]');
+
+  const motionQuery = typeof window.matchMedia === 'function'
+    ? window.matchMedia('(prefers-reduced-motion: reduce)')
+    : { matches: false };
+
+  const setToggleState = (label, disabled, pressed = false) => {
+    if (!toggleBtn) return;
+    toggleBtn.textContent = label;
+    toggleBtn.disabled = disabled;
+    toggleBtn.setAttribute('aria-pressed', pressed ? 'true' : 'false');
   };
-  function stop() {
-    if (frame) cancelAnimationFrame(frame);
-    frame = 0;
-    lastFrame = 0;
-  }
-  function fallback(reason) {
-    if (reason) console.warn('KIOKU River Guardian fallback:', reason);
-    running = false;
-    ready = false;
-    stop();
-    root.classList.remove('is-ready');
-    root.dataset.dragonState = 'fallback';
-    setToggle('Motion unavailable', true);
-  }
-  try {
-    gl = canvas.getContext('webgl', {
-      alpha: true, antialias: true, depth: true, premultipliedAlpha: false,
-      powerPreference: 'low-power'
-    });
-  } catch { gl = null; }
-  if (!gl) { fallback('WebGL unavailable'); return; }
-  let model, program, uniforms, draws = [], duration;
 
-  const VERTEX = `precision highp float;
-attribute vec3 a_position;
-attribute vec3 a_normal;
-attribute vec4 a_joint;
-attribute vec4 a_weight;
-uniform mat4 u_bones[10];
-uniform mat4 u_orbit;
-uniform vec4 u_frame;
-varying vec3 v_normal;
-mat4 boneAt(float index) {
-  mat4 result = u_bones[0];
-  for (int i=1; i<10; i++) {
-    if (index > float(i)-0.5) result = u_bones[i];
-  }
-  return result;
-}
-void main() {
-  mat4 skin = boneAt(a_joint.x)*a_weight.x + boneAt(a_joint.y)*a_weight.y;
-  vec4 p = u_orbit * skin * vec4(a_position,1.0);
-  v_normal = normalize((u_orbit * skin * vec4(a_normal,0.0)).xyz);
-  gl_Position = vec4((p.x-u_frame.z)*u_frame.x,
-                     (p.y-u_frame.w)*u_frame.y,
-                     p.z*0.045, 1.0+p.z*0.045);
-}`;
-  const FRAGMENT = `precision mediump float;
-varying vec3 v_normal;
-uniform vec3 u_tint;
-void main() {
-  vec3 n = normalize(v_normal);
-  vec3 lightA = normalize(vec3(-0.46,0.80,0.82));
-  vec3 lightB = normalize(vec3(0.54,-0.22,0.74));
-  float lit = 0.46 + 0.37*max(dot(n,lightA),0.0)
-                    + 0.15*max(dot(n,lightB),0.0);
-  float rim = pow(1.0-abs(n.z),2.3);
-  vec3 base = pow(max(u_tint,vec3(0.0)),vec3(0.4545));
-  vec3 rgb = base*lit + vec3(0.062,0.10,0.16)*rim*0.48;
-  gl_FragColor = vec4(rgb,1.0);
-}`;
-  const identity = () => new Float32Array([
-    1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1
-  ]);
-  function multiply(a,b) {
-    const out = new Float32Array(16);
-    for (let col=0;col<4;col++) for(let row=0;row<4;row++) {
-      let v=0;
-      for (let k=0;k<4;k++) v+=a[k*4+row]*b[col*4+k];
-      out[col*4+row]=v;
+  const setExtraControlsHidden = (hidden) => {
+    for (const el of [resetBtn, ...realmBtns]) {
+      if (!el) continue;
+      el.hidden = hidden;
+      el.disabled = hidden;
     }
-    return out;
+  };
+
+  const activateStaticFallback = (reason) => {
+    sceneRoot.dataset.dragonState = 'fallback';
+    sceneRoot.dataset.fallbackReason = reason;
+    sceneRoot.classList.remove('is-ready');
+    setToggleState(reason === 'reduced-motion' ? 'Motion reduced' : 'Motion unavailable', true, false);
+    setExtraControlsHidden(true);
+    window.__KIOKU_DRAGON_DIAG__ = { mode: 'fallback', reason };
+  };
+
+  const isStandaloneSrcdoc = window.location?.protocol === 'about:' || window.location?.protocol === 'data:';
+  if (isStandaloneSrcdoc || window.__KIOKU_DISABLE_WEBGL__) {
+    activateStaticFallback(isStandaloneSrcdoc ? 'standalone-srcdoc' : 'webgl-disabled');
+    return;
   }
-  function transform(q,t) {
-    const [x,y,z,w] = q, [tx,ty,tz] = t;
-    return new Float32Array([
-      1-2*(y*y+z*z),2*(x*y+z*w),2*(x*z-y*w),0,
-      2*(x*y-z*w),1-2*(x*x+z*z),2*(y*z+x*w),0,
-      2*(x*z+y*w),2*(y*z-x*w),1-2*(x*x+y*y),0,
-      tx,ty,tz,1
-    ]);
-  }
-  function slerp(a,b,t) {
-    let cosine = a.reduce((s,x,i)=>s+x*b[i],0);
-    const q = cosine < 0 ? b.map(v=>-v) : b;
-    cosine = Math.abs(cosine);
-    let x,y;
-    if (cosine > 0.9995) { x=1-t; y=t; }
-    else {
-      const angle = Math.acos(Math.min(1,cosine)), s=Math.sin(angle);
-      x=Math.sin((1-t)*angle)/s; y=Math.sin(t*angle)/s;
+
+  let activeCleanup = null;
+  let bootToken = 0;
+
+  async function mountWebGLScene(token) {
+    if (motionQuery.matches) {
+      activateStaticFallback('reduced-motion');
+      return;
     }
-    const v=a.map((n,i)=>x*n+y*q[i]);
-    const norm=Math.hypot(...v)||1;
-    return v.map(n=>n/norm);
-  }
-  function shader(type,src) {
-    const obj=gl.createShader(type);gl.shaderSource(obj,src);gl.compileShader(obj);
-    if(!gl.getShaderParameter(obj,gl.COMPILE_STATUS))
-      throw new Error(gl.getShaderInfoLog(obj)||'Shader compilation failed');
-    return obj;
-  }
-  function configure(data) {
-    const vs=shader(gl.VERTEX_SHADER,VERTEX),fs=shader(gl.FRAGMENT_SHADER,FRAGMENT);
-    program=gl.createProgram();gl.attachShader(program,vs);gl.attachShader(program,fs);
-    gl.linkProgram(program);
-    if(!gl.getProgramParameter(program,gl.LINK_STATUS))
-      throw new Error(gl.getProgramInfoLog(program)||'Shader link failed');
-    gl.useProgram(program);
-    const attrs=[['a_position','position',3,gl.FLOAT],['a_normal','normal',3,gl.FLOAT],
-      ['a_joint','joint',4,gl.UNSIGNED_SHORT],['a_weight','weight',4,gl.FLOAT]];
-    const locations=attrs.map(([name])=>{
-      const id=gl.getAttribLocation(program,name);
-      if(id<0)throw new Error('Missing attribute '+name);
-      gl.enableVertexAttribArray(id);
-      return id;
-    });
-    draws=data.primitives.map(part=>{
-      const vbos=attrs.map(([,key])=>{
-        const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);
-        gl.bufferData(gl.ARRAY_BUFFER,part[key],gl.STATIC_DRAW);
-        return buf;
-      });
-      const ebo=gl.createBuffer();gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ebo);
-      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,part.indices,gl.STATIC_DRAW);
-      return {vbos,ebo,count:part.indices.length,color:part.tint};
-    });
-    uniforms={bones:gl.getUniformLocation(program,'u_bones[0]'),
-      orbit:gl.getUniformLocation(program,'u_orbit'),frame:gl.getUniformLocation(program,'u_frame'),
-      tint:gl.getUniformLocation(program,'u_tint')};
-    gl.enable(gl.DEPTH_TEST);gl.disable(gl.CULL_FACE);gl.disable(gl.BLEND);
-    model={...data,attrs,locations};
-    duration=data.clip;
-  }
-  function uploadBones(t) {
-    const matrices=new Float32Array(10*16);
-    const worlds=new Map();
-    const compute=(id)=>{
-      if(worlds.has(id))return worlds.get(id);
-      const node=model.json.nodes[id],track=model.channels.get(id);
-      let q=node.rotation||[0,0,0,1];
-      if(track) {
-        const ticks=track.time, sample=t%duration;
-        let i=0;
-        while(i<ticks.length-2 && ticks[i+1]<sample)i++;
-        const dt=ticks[i+1]-ticks[i]||1, a=Math.max(0,Math.min(1,(sample-ticks[i])/dt));
-        q=slerp(Array.from(track.quat.slice(i*4,i*4+4)),
-                Array.from(track.quat.slice((i+1)*4,(i+1)*4+4)),a);
+
+    const probeCanvas = typeof document.createElement === 'function' ? document.createElement('canvas') : canvas;
+    const probeGl = typeof probeCanvas?.getContext === 'function'
+      ? (probeCanvas.getContext('webgl2') || probeCanvas.getContext('webgl'))
+      : null;
+    if (!probeGl) {
+      activateStaticFallback('webgl-unavailable');
+      return;
+    }
+
+    setToggleState('Loading 3D...', true, false);
+
+    try {
+      const [THREE, { GLTFLoader }, { createDragonRealmState }, { enhanceDragonMaterials }, { createDragonEnvironment }, { createDragonOrbitController }] =
+        await Promise.all([
+          import('../../assets/vendor/three.module.min.js'),
+          import('../../assets/vendor/GLTFLoader.js'),
+          import('./dragon-realm-state.js'),
+          import('./dragon-materials.js'),
+          import('./dragon-environment.js'),
+          import('./dragon-orbit.js'),
+        ]);
+      if (token !== bootToken || motionQuery.matches) {
+        if (motionQuery.matches) activateStaticFallback('reduced-motion');
+        return;
       }
-      const local=transform(q,node.translation||[0,0,0]);
-      const parent=model.parentByNode.get(id);
-      const global=parent==null?local:multiply(compute(parent),local);
-      worlds.set(id,global);
-      return global;
-    };
-    model.joints.forEach((nodeId,index)=>{
-      const inv=model.invBind.slice(index*16,index*16+16);
-      matrices.set(multiply(compute(nodeId),inv),index*16);
-    });
-    gl.uniformMatrix4fv(uniforms.bones,false,matrices);
-  }
-  function start() {
-    if(ready && running && !paused && !reduced.matches && visible && !document.hidden && !frame)
-      frame=requestAnimationFrame(draw);
-  }
-  function draw(now) {
-    frame=0;
-    if(reduced.matches){syncMotionPreference();return;}
-    if(!ready || !running || paused || document.hidden || !visible)return;
-    const dt=lastFrame?Math.min(Math.max((now-lastFrame)/1000,0),0.055):0;
-    lastFrame=now;elapsed+=dt;
-    yaw+=(targetYaw-yaw)*(1-Math.exp(-5.0*dt));
-    pitch+=(targetPitch-pitch)*(1-Math.exp(-5.0*dt));
-    const width=canvas.clientWidth,height=canvas.clientHeight;
-    if(!width||!height){start();return;}
-    const dpr=Math.min(window.devicePixelRatio||1,width<720?1.35:1.7);
-    const w=Math.round(width*dpr),h=Math.round(height*dpr);
-    if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h);}
-    gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-    gl.useProgram(program);
-    uploadBones(elapsed);
-    const y=[0,Math.sin(yaw/2),0,Math.cos(yaw/2)];
-    const x=[Math.sin(pitch/2),0,0,Math.cos(pitch/2)];
-    gl.uniformMatrix4fv(uniforms.orbit,false,multiply(transform(x,[0,0,0]),transform(y,[0,0,0])));
-    const mobile=width<720;
-    // Production River Guardian S-curve framing: centered at (-0.86, 0.02) without head/tail/horn/limb clipping.
-    gl.uniform4f(uniforms.frame,2/(mobile?12.2:11.8),mobile?.45:.47,-.86,.02);
-    for(const part of draws) {
-      model.attrs.forEach(([,key,size,type],i)=>{
-        gl.bindBuffer(gl.ARRAY_BUFFER,part.vbos[i]);
-        gl.vertexAttribPointer(model.locations[i],size,type,false,0,0);
+
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.06;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(33, 16 / 9, 0.1, 120);
+      const env = createDragonEnvironment(THREE, scene);
+      const realmState = createDragonRealmState({ initialMode: 'journey', paused: false });
+      const orbit = createDragonOrbitController(canvas, sceneRoot);
+
+      const gltf = await new GLTFLoader().loadAsync('./assets/models/KIOKU-Dragon-Web.glb');
+      if (token !== bootToken || motionQuery.matches) {
+        orbit.dispose();
+        env.dispose();
+        renderer.dispose();
+        if (motionQuery.matches) activateStaticFallback('reduced-motion');
+        return;
+      }
+
+      const dragonPivot = new THREE.Group();
+      const dragonRoot = gltf.scene;
+      const box = new THREE.Box3().setFromObject(dragonRoot);
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+      const normScale = 8.5 / Math.max(1.0, size.x, size.y, size.z);
+      dragonRoot.scale.setScalar(normScale);
+      dragonRoot.position.set(-center.x * normScale, -center.y * normScale, -center.z * normScale);
+      dragonPivot.add(dragonRoot);
+      scene.add(dragonPivot);
+
+      const matBridge = await enhanceDragonMaterials(THREE, dragonRoot);
+      const mixer = new THREE.AnimationMixer(dragonRoot);
+      const actions = {};
+      for (const clip of gltf.animations) {
+        const act = mixer.clipAction(clip);
+        act.enabled = true;
+        actions[clip.name] = act;
+      }
+      let currentClipName = actions.SwimLoop ? 'SwimLoop' : (gltf.animations[0]?.name || '');
+      actions[currentClipName]?.reset().play();
+
+      const switchClip = (nextName) => {
+        if (!nextName || nextName === currentClipName || !actions[nextName]) return;
+        const prev = actions[currentClipName];
+        const next = actions[nextName];
+        next.reset().play();
+        prev?.crossFadeTo(next, 0.55, true);
+        currentClipName = nextName;
+      };
+
+      const resize = () => {
+        const w = Math.max(1, sceneRoot.clientWidth || canvas.clientWidth || 390);
+        const h = Math.max(1, sceneRoot.clientHeight || canvas.clientHeight || 320);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, w < 768 ? 1.5 : 2.0));
+        renderer.setSize(w, h, false);
+        camera.aspect = w / h;
+        orbit.setViewportWidth(w, h);
+        camera.updateProjectionMatrix();
+      };
+      resize();
+      window.addEventListener?.('resize', resize);
+
+      const syncUi = (snap) => {
+        sceneRoot.dataset.dragonState = snap.paused ? 'paused' : 'animated';
+        sceneRoot.dataset.realmMode = snap.mode;
+        sceneRoot.dataset.realmPhase = snap.phaseName;
+        if (statusEl) statusEl.textContent = snap.stageLabel;
+        setToggleState(snap.paused ? 'Play motion' : 'Pause motion', false, snap.paused);
+        for (const btn of realmBtns) {
+          const r = btn.dataset.realmSelect;
+          const active = snap.mode === r || (snap.mode === 'journey' && ((r === 'water' && snap.realmBlend < 0.5) || (r === 'coral' && snap.realmBlend >= 0.5)));
+          btn.classList.toggle('is-active', active);
+          btn.setAttribute('aria-pressed', snap.mode === r ? 'true' : 'false');
+        }
+        if (fallbackImg) {
+          fallbackImg.src = snap.realmBlend >= 0.5
+            ? './assets/img/kioku-dragon-round35-coral-fallback.webp'
+            : './assets/img/kioku-dragon-round35-water-fallback.webp';
+        }
+      };
+
+      const onToggleClick = () => syncUi(realmState.setPaused(!realmState.isPaused()));
+      const onResetClick = () => orbit.reset();
+      const realmHandlers = realmBtns.map((btn) => {
+        const fn = () => {
+          const r = btn.dataset.realmSelect;
+          syncUi(realmState.setMode(realmState.getMode() === r ? 'journey' : r));
+        };
+        btn.addEventListener('click', fn);
+        return [btn, fn];
       });
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,part.ebo);
-      gl.uniform3f(uniforms.tint,part.color[0],part.color[1],part.color[2]);
-      gl.drawElements(gl.TRIANGLES,part.count,gl.UNSIGNED_SHORT,0);
+      toggleBtn?.addEventListener('click', onToggleClick);
+      resetBtn?.addEventListener('click', onResetClick);
+
+      let inViewport = true;
+      const io = typeof IntersectionObserver === 'function'
+        ? new IntersectionObserver((entries) => { if (entries[0]) inViewport = entries[0].isIntersecting; }, { threshold: 0.04 })
+        : null;
+      io?.observe(stage);
+
+      let meshCount = 0, vertCount = 0, boneCount = 0;
+      dragonRoot.traverse((o) => {
+        if (o.isMesh && o.geometry?.attributes?.position) {
+          meshCount++;
+          vertCount += o.geometry.attributes.position.count;
+        }
+        if (o.isSkinnedMesh && o.skeleton) boneCount = Math.max(boneCount, o.skeleton.bones.length);
+      });
+
+      let rafId = 0, lastTs = performance.now(), elapsed = 0, fpsSmooth = 60, stopped = false;
+
+      const tick = (now) => {
+        if (stopped) return;
+        if (motionQuery.matches) {
+          cleanup();
+          activateStaticFallback('reduced-motion');
+          return;
+        }
+        rafId = requestAnimationFrame(tick);
+        if (!inViewport || document.hidden) {
+          lastTs = now;
+          return;
+        }
+        const dt = Math.min(0.08, Math.max(0.001, (now - lastTs) / 1000));
+        lastTs = now;
+        fpsSmooth = fpsSmooth * 0.92 + (1 / dt) * 0.08;
+
+        const snap = realmState.step(dt);
+        switchClip(snap.activeClip);
+        if (!snap.paused) {
+          elapsed += dt;
+          mixer.update(dt);
+        }
+
+        dragonPivot.position.y = snap.elevation * 0.42;
+        dragonPivot.rotation.z = snap.pitch;
+        orbit.step(dt, camera, 0.92, 0.10 + dragonPivot.position.y * 0.45, 0);
+
+        matBridge.update(snap, elapsed);
+        env.update(snap, elapsed);
+        renderer.render(scene, camera);
+        syncUi(snap);
+
+        window.__KIOKU_DRAGON_DIAG__ = {
+          mode: 'webgl-round35',
+          asset: './assets/models/KIOKU-Dragon-Web.glb',
+          meshCount,
+          vertCount,
+          boneCount,
+          clips: Object.keys(actions),
+          activeClip: currentClipName,
+          realmMode: snap.mode,
+          phaseName: snap.phaseName,
+          realmBlend: Number(snap.realmBlend.toFixed(4)),
+          paused: snap.paused,
+          fps: Number(fpsSmooth.toFixed(1)),
+          drawCalls: renderer.info.render.calls,
+          triangles: renderer.info.render.triangles,
+          orbitYaw: Number(orbit.current.yaw.toFixed(3)),
+          orbitPitch: Number(orbit.current.pitch.toFixed(3)),
+        };
+      };
+
+      const onContextLost = (e) => {
+        e.preventDefault();
+        cleanup();
+        activateStaticFallback('webgl-context-lost');
+      };
+      canvas.addEventListener('webglcontextlost', onContextLost);
+
+      function cleanup() {
+        if (stopped) return;
+        stopped = true;
+        cancelAnimationFrame(rafId);
+        io?.disconnect();
+        window.removeEventListener?.('resize', resize);
+        canvas.removeEventListener('webglcontextlost', onContextLost);
+        toggleBtn?.removeEventListener('click', onToggleClick);
+        resetBtn?.removeEventListener('click', onResetClick);
+        for (const [b, fn] of realmHandlers) b.removeEventListener('click', fn);
+        orbit.dispose();
+        env.dispose();
+        matBridge.dispose();
+        renderer.dispose();
+        activeCleanup = null;
+      }
+
+      activeCleanup = cleanup;
+      setExtraControlsHidden(false);
+      sceneRoot.classList.add('is-ready');
+      syncUi(realmState.step(0.016));
+      mixer.update(0.016);
+      orbit.step(0.016, camera, 0.92, 0.10, 0);
+      renderer.render(scene, camera);
+      rafId = requestAnimationFrame(tick);
+    } catch (err) {
+      activateStaticFallback('init-error');
+      window.__KIOKU_DRAGON_ERROR__ = String(err?.message || err);
     }
-    if(gl.getError()!==gl.NO_ERROR){fallback('GPU render error');return;}
-    if(!shown){shown=true;root.classList.add('is-ready');root.dataset.dragonState='animated';setToggle('Pause motion',false);}
-    start();
   }
-  toggle?.addEventListener('click',()=>{
-    if(!ready||!running||reduced.matches)return;
-    paused=!paused;
-    if(paused){stop();root.dataset.dragonState='paused';setToggle('Play motion',false);}
-    else{root.dataset.dragonState='animated';setToggle('Pause motion',false);start();}
-  });
-  canvas.addEventListener('pointerdown',e=>{
-    if(!ready||reduced.matches)return;
-    dragging=true;previousX=e.clientX;previousY=e.clientY;
-    canvas.setPointerCapture?.(e.pointerId);
-  });
-  canvas.addEventListener('pointermove',e=>{
-    if(!dragging)return;
-    targetYaw+=(e.clientX-previousX)*0.009;
-    targetPitch=Math.max(-.8,Math.min(.8,targetPitch+(e.clientY-previousY)*.006));
-    previousX=e.clientX;previousY=e.clientY;
-  });
-  const release=()=>dragging=false;
-  canvas.addEventListener('pointerup',release);
-  canvas.addEventListener('pointercancel',release);
-  canvas.addEventListener('keydown',e=>{
-    if(e.key==='ArrowLeft')targetYaw-=.12;
-    else if(e.key==='ArrowRight')targetYaw+=.12;
-    else if(e.key==='ArrowUp')targetPitch=Math.max(-.8,targetPitch-.12);
-    else if(e.key==='ArrowDown')targetPitch=Math.min(.8,targetPitch+.12);
-    else return;
-    e.preventDefault();
-  });
-  canvas.addEventListener('dblclick',()=>{targetYaw=-.11;targetPitch=.035;});
-  if('IntersectionObserver' in window){
-    new IntersectionObserver(es=>{visible=es[0]?.isIntersecting??false;visible?start():stop();},{threshold:.01}).observe(root);
-  }
-  function syncMotionPreference() {
-    if (!running) return;
-    if (reduced.matches) {
-      stop();
-      paused = false;
-      shown = false;
-      dragging = false;
-      root.classList.remove('is-ready');
-      root.dataset.dragonState = 'fallback';
-      setToggle('Motion reduced', true);
-    } else {
-      start();
+
+  const onMotionPrefChange = () => {
+    if (motionQuery.matches) {
+      bootToken++;
+      activeCleanup?.();
+      activateStaticFallback('reduced-motion');
+    } else if (!activeCleanup) {
+      mountWebGLScene(++bootToken);
     }
-  }
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) stop();
-    else syncMotionPreference();
-  });
-  if (reduced.addEventListener) reduced.addEventListener('change', syncMotionPreference);
-  else reduced.addListener?.(syncMotionPreference);
-  canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();fallback('WebGL context lost');});
-  syncMotionPreference();
-  fetch('./assets/models/kioku-river-guardian-v6-longform.glb')
-    .then(r=>{if(!r.ok)throw new Error('Model HTTP '+r.status);return r.arrayBuffer();})
-    .then(async buffer=>{
-      const { parseGLB } = await import('../../data/dragon-glb.js');
-      if (!running) return;
-      configure(parseGLB(buffer));
-      ready=true;
-      start();
-    })
-    .catch(e=>fallback(e.message));
+  };
+  if (typeof motionQuery.addEventListener === 'function') motionQuery.addEventListener('change', onMotionPrefChange);
+  else if (typeof motionQuery.addListener === 'function') motionQuery.addListener(onMotionPrefChange);
+
+  mountWebGLScene(++bootToken);
 })();
