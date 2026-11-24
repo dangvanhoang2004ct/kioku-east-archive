@@ -1,5 +1,19 @@
 # KIOKU — Việc đang làm
 
+## 25/11/2026 — Tích hợp Rồng Round-35 Dual-Realm lên Production (COMPLETE)
+
+- **Nguồn chuẩn (Read-only Master):** `KIOKU-Creature-Studio/assets/round-35/KIOKU-Dragon-Rebuild.blend` (Blender `5.3.0`, Stage F, `146` xương / `74` xương biến dạng `DEF_*`, SHA-256 nguyên vẹn: `b766630dabd090fd9db09becb729a5d2bc269c60bd1652334e86cee0ccfecea7`). Bản dẫn xuất chỉnh sửa không phá hủy: `KIOKU-Creature-Studio/assets/web-round35/KIOKU-Dragon-Web-Derivative.blend`.
+- **Tài sản Web GLB & PBR:** `kioku-v4/assets/models/KIOKU-Dragon-Web.glb` (`19,937,724` bytes, SHA-256: `c42efb186d606a3d467367f95eaa46656fa727486b53a760dbece9c80ba7fb78`, `14` mesh GPU-skinned, `192,263` đỉnh mesh / `200,326` đỉnh glTF, `74` xương `DEF_*`, `5` clip hoạt ảnh xương đã bake từ `KIOKU_StageD_R22_Master`: `SwimLoop`, `SurfaceCrossing`, `WaterToCoralTransform`, `CoralFlightLoop`, `CoralToWaterDescent`), kèm bộ Coral BaseColor WebP tại `assets/models/textures/`, manifest `kioku-dragon-web-manifest.json`, và ảnh dự phòng tĩnh xuất từ chính mẫu Round-35 (`kioku-dragon-round35-water-fallback.webp`, `kioku-dragon-round35-coral-fallback.webp`).
+- **Kiến trúc Three.js Dual-Realm (Local bundle, `<= 300` dòng/file):** Vendor cục bộ Three.js `0.170.0` (`assets/vendor/three.module.min.js`, `GLTFLoader.js`, `BufferGeometryUtils.js` — 0 CDN ngoài) và tách 5 module rõ trách nhiệm: `dragon-realm-state.js` (hành trình khép kín Underwater → Ascent → Surface Crossing → Transformation theo spline `E_TransitionAction.001` → Coral Flight → Descent, ánh xạ `kioku_state`, `kioku_wet`, `kioku_submerged`, `kioku_fx_emission`, `kioku_fx_aura`, `kioku_fx_coral_light`, `kioku_fx_atmo`), `dragon-materials.js` (PBR shader blend liên tục Water ↔ Coral + multi-zone groom gradient trên cùng một rồng, không dùng CSS `hue-rotate`), `dragon-environment.js` (ánh sáng dưới nước/hạt lơ lửng, mặt nước & gợn sóng khi vượt mặt nước, bầu trời mây thể tích & ánh san hô), `dragon-orbit.js` (xoay chuột/cảm ứng + phím mũi tên + Reset view), `dragon-glb-scene.js` (lazy init, crossfade hoạt ảnh, Pause/Play ưu tiên thủ công, `prefers-reduced-motion` và fallback khi thiếu WebGL).
+- **Kiểm thử tự động & WebGL GPU thực tế:**
+  - `npm test`, `npm run build`, `npm run preview`: **PASS** (`7` trang tiếng Anh, `16` script, giữ nguyên các công cụ Search, Filters, Sort, Saved, Compare, Finder, Condition Notes, Lightbox).
+  - `npm run qa:browser` (Chromium tại `320, 375, 390, 768, 1440`): **PASS** (`0` pageerror, `0` tràn ngang; lưu ý Playwright WebKit headless `v2388` trên bản macOS hiện tại gặp lỗi `SIGSEGV` ở tiến trình khởi chạy của Playwright trước khi mở trang).
+  - `tests/round35_webgl_qa.py` (Chromium GPU Angle/Metal trên `dist/`): **PASS** (`60 FPS` ổn định, `16`–`35` draw calls, biến dạng xương thực xác nhận qua khung hình tĩnh camera, chuyển mượt `realmBlend` `0.0 -> 0.5 -> 0.9908`, Orbit/Keyboard/Reset/Pause-Play, CTA mobile `390x844` ở `y_bottom = 414.5px` ngay màn hình đầu, `prefers-reduced-motion` & no-WebGL fallback).
+- **Phát hành GitHub & Cloudflare Pages Production:**
+  - PR **#22** (`feature/kioku-round35-dragon-web-20261125` → `main`) đã merge tại commit **`f098193e2cc007c7871eebb216c2577e13225cfe`**.
+  - Production URL: **`https://kioku-east-archive.pages.dev/`** (Deployment: `https://ddc980f8.kioku-east-archive.pages.dev`).
+  - Mốc Rollback được bảo toàn nguyên vẹn: commit `main` trước đó **`9137408126cc769388b16b4a0a814d46ba3ecbb5`** và tài sản `kioku-v4/assets/models/kioku-river-guardian-v6-longform.glb`.
+
 ## 19/11/2026 — KIOKU V7 clean architecture
 
 - **P0 — DONE:** Đã chốt baseline từ PR #15 ở `8c44f95`, trên nhánh V7 PR #10. Build đọc bảy HTML nguồn, dùng chung header/footer/search. Favorites và Compare cùng sử dụng localStorage với dự phòng cho standalone preview.
