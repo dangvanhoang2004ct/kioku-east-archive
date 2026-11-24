@@ -8,20 +8,29 @@
     <meta name="description" content="Explore Japanese anime figure lines, collector tools, and practical condition guidance.">
     <link rel="icon" href="./brand/kioku-favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="./assets/site.css">
+    <link rel="stylesheet" href="./assets/dragon-stage.css">
   </head>
   <body class="home">
     <a class="skip" href="#main">Skip to content</a>
     <kioku-include name="site-header"></kioku-include>
     <main id="main">
       <section class="hero hero--immersive" aria-labelledby="home-intro-title">
-        <div class="hero-stage" aria-label="KIOKU animated blue dragon and wordmark">
+        <div class="hero-stage" aria-label="KIOKU Round-35 Dual-Realm 3D dragon and wordmark">
           <div class="hero-stage-ambient" aria-hidden="true"></div>
-          <div class="hero-dragon" role="img" aria-label="Animated three-dimensional blue KIOKU dragon with its wordmark" data-dragon-scene>
-            <img class="hero-dragon-fallback" src="./assets/img/kioku-owner-logo-stage-still.svg" width="680" height="266" alt="" aria-hidden="true">
+          <div class="hero-dragon" role="img" aria-label="Interactive three-dimensional KIOKU guardian dragon in Water and Coral Flight realms" data-dragon-scene>
+            <img class="hero-dragon-fallback" data-dragon-fallback-img src="./assets/img/kioku-dragon-round35-water-fallback.webp" width="1280" height="720" alt="KIOKU Guardian Dragon in the Water Realm">
             <img class="hero-dragon-wordmark" src="./assets/img/kioku-owner-wordmark-only.svg" width="680" height="266" alt="" aria-hidden="true">
             <canvas id="kioku-dragon-canvas" tabindex="0" role="application" aria-label="Rotatable 3D KIOKU dragon. Drag or use arrow keys to rotate and explore different angles." data-dragon-canvas></canvas>
           </div>
-          <button class="hero-motion-toggle" type="button" data-dragon-motion-toggle aria-controls="kioku-dragon-canvas" aria-pressed="false" disabled>Motion unavailable</button>
+          <div class="hero-dragon-hud" role="group" aria-label="3D Dragon Realm and Motion Controls">
+            <div class="hero-realm-group" role="group" aria-label="Select Dragon Realm">
+              <button class="hero-realm-btn is-active" type="button" data-realm-select="water" aria-pressed="false">Water</button>
+              <button class="hero-realm-btn" type="button" data-realm-select="coral" aria-pressed="false">Coral Flight</button>
+            </div>
+            <button class="hero-motion-toggle" type="button" data-dragon-motion-toggle aria-controls="kioku-dragon-canvas" aria-pressed="false" disabled>Motion unavailable</button>
+            <button class="hero-reset-btn" type="button" data-dragon-reset aria-controls="kioku-dragon-canvas">Reset view</button>
+            <span class="hero-realm-status" data-realm-status aria-live="polite">Water Realm · Underwater Guardian</span>
+          </div>
           <a class="hero-scroll-cue" href="#home-intro-title">Discover KIOKU <span aria-hidden="true">↓</span></a>
         </div>
         <div class="hero-mobile-entry shell"><a class="btn" href="./collection.html">Explore the collection <span aria-hidden="true">↗</span></a>

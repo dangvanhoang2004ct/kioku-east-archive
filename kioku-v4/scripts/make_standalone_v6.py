@@ -3,7 +3,7 @@ import json,base64,re,subprocess
 root=Path(__file__).resolve().parent.parent
 subprocess.run(['node', 'scripts/build.mjs'], cwd=root, check=True)
 pages=['index','collection','finder','work','condition-guide','journal','about']
-css=(root/'assets/site.css').read_text()
+css=(root/'assets/site.css').read_text()+'\n'+(root/'assets/dragon-stage.css').read_text()
 css=re.sub(r'@import[^\n]*\n','',css)
 files={n:(root/n).read_text() for n in [
  'data/browser-storage.js','features/storefront/favorites.js','features/catalog/records.js','features/shared/site.js',

@@ -1,61 +1,87 @@
-import {readFileSync} from 'node:fs';
-import {resolve,join} from 'node:path';
-const file=join(resolve(import.meta.dirname,'..'),'assets','models','kioku-river-guardian-v6-longform.glb');
-const b=readFileSync(file);
-if(b.toString('utf8',0,4)!=='glTF'||b.readUInt32LE(4)!==2||b.readUInt32LE(8)!==b.length)
- throw Error('Invalid River Guardian GLB header');
-const jsonLength=b.readUInt32LE(12);
-if(b.toString('utf8',16,20)!=='JSON')throw Error('Missing glTF JSON chunk');
-const j=JSON.parse(b.subarray(20,20+jsonLength).toString('utf8'));
-if(j.skins?.length!==1||j.skins[0].joints.length!==10)
- throw Error('River Guardian needs the 10-bone Blender rig');
-const anim=j.animations?.[0];
-if(!anim?.name?.includes('V6 Longform'))throw Error('Expected V6 Longform 6s animation');
-const rotChannels=anim?.channels?.filter(c=>c.target?.path==='rotation')||[];
-if(!anim||rotChannels.length<9)throw Error('Owner 6-second 9-track animation missing');
-if(j.meshes?.length!==1||j.meshes[0].primitives?.length!==6||j.materials?.length!==6)
- throw Error('Expected one owner dragon mesh split across six materials');
-const components={SCALAR:1,VEC2:2,VEC3:3,VEC4:4,MAT4:16};
-const sizes={5121:1,5123:2,5125:4,5126:4};
-const binPos=20+jsonLength;
-if(b.toString('utf8',binPos+4,binPos+8)!=='BIN\0')throw Error('Missing GLB binary chunk');
-const binLen=b.readUInt32LE(binPos),bin= b.subarray(binPos+8,binPos+8+binLen);
-function accessor(i){
- const a=j.accessors[i],v=j.bufferViews[a.bufferView];
- if(!components[a.type]||!sizes[a.componentType])throw Error('Unsupported accessor type');
- const pos=(v.byteOffset||0)+(a.byteOffset||0),bytes=a.count*components[a.type]*sizes[a.componentType];
- if(pos+bytes>bin.length)throw Error('Invalid GLB accessor bounds: '+i);
- return {a, data:bin.subarray(pos,pos+bytes)};
+import { readFileSync, existsSync } from 'node:fs';
+import { resolve, join } from 'node:path';
+
+const root = resolve(import.meta.dirname, '..');
+
+function parseGlbJson(filePath) {
+  const buf = readFileSync(filePath);
+  if (buf.toString('utf8', 0, 4) !== 'glTF' || buf.readUInt32LE(4) !== 2 || buf.readUInt32LE(8) !== buf.length) {
+    throw new Error('Invalid GLB binary header: ' + filePath);
+  }
+  const jsonLen = buf.readUInt32LE(12);
+  if (buf.toString('utf8', 16, 20) !== 'JSON') throw new Error('Missing JSON chunk: ' + filePath);
+  const gltf = JSON.parse(buf.subarray(20, 20 + jsonLen).toString('utf8'));
+  const binPos = 20 + jsonLen;
+  if (buf.toString('utf8', binPos + 4, binPos + 8) !== 'BIN\0') throw new Error('Missing BIN chunk: ' + filePath);
+  return { gltf, byteLength: buf.length };
 }
-let vertices=0,triangles=0;
-for(const p of j.meshes[0].primitives){
- for(const key of ['POSITION','NORMAL','JOINTS_0','WEIGHTS_0'])
-  if(!(key in p.attributes))throw Error('Missing mesh attribute: '+key);
- const count=j.accessors[p.attributes.POSITION].count;
- const index=j.accessors[p.indices];
- if(count>65535)throw Error('Mesh part exceeds WebGL1 index capacity');
- if(index.type!=='SCALAR'||index.count%3!==0)throw Error('Invalid indexed triangles');
- const wg=accessor(p.attributes.WEIGHTS_0);
- if(wg.a.componentType!==5126||wg.a.type!=='VEC4')throw Error('Weights must be VEC4 float');
- const f=new Float32Array(wg.data.buffer,wg.data.byteOffset,wg.data.byteLength/4);
- for(let k=0;k<f.length;k+=4){
-  const sum=f[k]+f[k+1]+f[k+2]+f[k+3];
-  if(Math.abs(sum-1)>0.002)throw Error('Incorrect bone weights');
-  if(f[k+2]>1e-6||f[k+3]>1e-6)throw Error('Renderer supports two weights per vertex');
- }
- vertices+=count;triangles+=index.count/3;
+
+// 1. Validate preserved V6 rollback asset remains intact
+const rollbackPath = join(root, 'assets', 'models', 'kioku-river-guardian-v6-longform.glb');
+if (!existsSync(rollbackPath)) throw new Error('Rollback River Guardian V6 GLB missing');
+const rollback = parseGlbJson(rollbackPath);
+if (rollback.gltf.skins?.[0]?.joints?.length !== 10) {
+  throw new Error('Rollback River Guardian V6 rig corrupted');
 }
-if(vertices!==19882||triangles!==36304)throw Error('Unexpected V6 Longform mesh count');
-for(const c of rotChannels){
- if(c.target.path!=='rotation')throw Error('Unexpected animation target');
- const s=anim.samplers[c.sampler],ta=j.accessors[s.input],ro=j.accessors[s.output];
- if(ta.type!=='SCALAR'||ro.type!=='VEC4')throw Error('Animation accessor mismatch');
- const v=accessor(s.input).data;
- const times=new Float32Array(v.buffer,v.byteOffset,v.byteLength/4);
- if(Math.abs(times[0])>1e-4||Math.abs(times.at(-1)-6)>1e-4)
-  throw Error('River Guardian should have a seamless 6-second swim');
+
+// 2. Validate Production Round-35 Web GLB & Manifest
+const r35Path = join(root, 'assets', 'models', 'KIOKU-Dragon-Web.glb');
+const manifestPath = join(root, 'assets', 'models', 'kioku-dragon-web-manifest.json');
+if (!existsSync(r35Path) || !existsSync(manifestPath)) {
+  throw new Error('Round-35 Web GLB or manifest missing');
 }
-const time=j.accessors[anim.samplers[0].input];
-if(!Array.isArray(time.min)||!Array.isArray(time.max))
- throw Error('Blender glTF compatibility: accessor min/max must be arrays');
-console.log('River Guardian V6 GLB PASS:',vertices,'vertices',triangles,'triangles; 10 bones; 6 materials; 9 rotation tracks; 6 sec.');
+
+const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+const EXPECTED_SHA = 'b766630dabd090fd9db09becb729a5d2bc269c60bd1652334e86cee0ccfecea7';
+if (manifest.sourceMasterSha256 !== EXPECTED_SHA) {
+  throw new Error('Round-35 manifest source SHA-256 mismatch');
+}
+
+const { gltf, byteLength } = parseGlbJson(r35Path);
+if (!gltf.skins?.length || gltf.skins[0].joints.length < 70) {
+  throw new Error('Expected Round-35 deform skeleton (>= 70 bones), got: ' + (gltf.skins?.[0]?.joints?.length || 0));
+}
+
+const requiredClips = ['SwimLoop', 'SurfaceCrossing', 'WaterToCoralTransform', 'CoralFlightLoop', 'CoralToWaterDescent'];
+const exportedClips = new Set((gltf.animations || []).map((a) => a.name));
+for (const req of requiredClips) {
+  if (!exportedClips.has(req)) throw new Error('Missing required Round-35 skeletal clip: ' + req);
+}
+
+let totalVerts = 0;
+let skinnedPrimitives = 0;
+let hasDualGroomAttrs = false;
+
+for (const mesh of gltf.meshes || []) {
+  for (const prim of mesh.primitives || []) {
+    const attrs = prim.attributes || {};
+    if ('POSITION' in attrs) {
+      totalVerts += gltf.accessors[attrs.POSITION].count;
+    }
+    if ('JOINTS_0' in attrs && 'WEIGHTS_0' in attrs) {
+      skinnedPrimitives++;
+    }
+    if ('COLOR_0' in attrs && 'TEXCOORD_0' in attrs && 'TEXCOORD_1' in attrs) {
+      hasDualGroomAttrs = true;
+    }
+  }
+}
+
+if (skinnedPrimitives < 10) {
+  throw new Error('Expected all Round-35 anatomical meshes to be GPU-skinned, got: ' + skinnedPrimitives);
+}
+if (!hasDualGroomAttrs) {
+  throw new Error('Dual-realm groom attributes (COLOR_0 + TEXCOORD_0 + TEXCOORD_1) missing');
+}
+if (totalVerts < 60000 || totalVerts > 450000) {
+  throw new Error('Unexpected Round-35 optimized vertex count: ' + totalVerts);
+}
+
+for (const coralRel of Object.values(manifest.coralTextures || {})) {
+  const full = resolve(root, coralRel);
+  if (!existsSync(full)) throw new Error('Missing Coral PBR texture: ' + coralRel);
+}
+
+console.log(
+  `Round-35 Dragon Web GLB PASS: ${totalVerts} verts, ${gltf.skins[0].joints.length} deform bones, ${exportedClips.size} clips, ${(byteLength / 1024 / 1024).toFixed(2)} MB (rollback V6 preserved).`
+);
