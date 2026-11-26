@@ -1,0 +1,3 @@
+{
+  "install": "npm --prefix kioku-v4 run build && npm --prefix kioku-v4 run preview"
+}
